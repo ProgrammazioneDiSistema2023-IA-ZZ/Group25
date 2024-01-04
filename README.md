@@ -12,3 +12,10 @@ All'interno della NN:
 - i parametri interni (potenziale di reset, potenziale di riposo e soglia) devono essere configurabili
 - utilizzare struttura fully connected
 - numero di strati e neuroni totalmente configurabile
+
+
+---- bash ----
+git add nomemodulo.rs
+git commit -m "???"
+git push
+
