@@ -13,6 +13,12 @@ All'interno della NN:
 - utilizzare struttura fully connected
 - numero di strati e neuroni totalmente configurabile
 
+lif_neuron.rs:
+- implementiamo il tratto Neuron in cui all'interno è presente un tipo ClassNeuron
+- implementiamo una struct di tipo LIFNeuron
+- implementiamo una struct LeakyIntegrateFire
+- implementiamo il tratto Neuron per la struct LeakyIntegrateFire in cui il tipo ClassNeuron è LIFNeuron
+
 
 ---- bash ----
 git add nomemodulo.rs
