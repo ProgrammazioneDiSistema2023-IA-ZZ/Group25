@@ -24,4 +24,11 @@ lif_neuron.rs:
 git add nomemodulo.rs
 git commit -m "???"
 git push
+---------------
 
+Come sviluppare gli errori:
+- considerare una lista di possibili componenti da 'attaccare' (valori di soglie, pesi delle sinapsi, potenziali di membrane)
+- per attacco si intende la modifica secondo uno dei 3 errori di uno dei bit di tale valore (-> trasformare il valore in bit ed in seguito eseguire una bit-wise ed impostare il valore ottenuto. es. 5-> 101 bitwise stuck-at-0 sull'ultimo bit ottengo 100 =4)
+- possibilità di errori: stuck-at-0, stuck-at-1, transient bit-flip
+-indicare il numero di occorrenze di tali guasti ( cioè ripetere i guasti N volte su diversi bit dei diversi componenti da verificare)
+- indicare la normale sequenza di input della rete stessa
