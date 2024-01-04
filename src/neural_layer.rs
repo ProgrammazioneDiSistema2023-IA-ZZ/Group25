@@ -1,24 +1,34 @@
 // neural_layer.rs
-use crate::lif_neuron::LIFNeuron; // Assicurati di importare il modulo del neurone LIF
+use crate::lif_neuron::SpikingNeuron;
 
-pub struct NeuralLayer {
-    pub neurons: Vec<LIFNeuron>,
+pub struct NeuralLayer<T> {
+    neurons: Vec<SpikingNeuron<T>>,
 }
 
-impl NeuralLayer {
-    pub fn new(size: usize, threshold: f64, resistance: f64, capacitance: f64, resting_potential: f64) -> Self {
+impl<T> NeuralLayer<T> {
+    pub fn new(
+        size: usize,
+        reset_potential: f64,
+        resting_potential: f64,
+        threshold: f64,
+        decay_factor: f64,
+        synaptic_weights: Vec<T>,
+    ) -> Self {
         let neurons = (0..size)
-            .map(|_| LIFNeuron::new(threshold, resistance, capacitance, resting_potential))
+            .map(|_| SpikingNeuron::new(reset_potential, resting_potential, threshold, decay_factor, synaptic_weights.clone()))
             .collect();
 
         Self { neurons }
     }
 
-    pub fn update(&mut self, input_spikes: &[f64], time_step: f64) {
-        // Logica di aggiornamento qui
-        // Itera attraverso i neuroni e aggiorna ciascun neurone con gli impulsi di input
-        for (neuron, &input_spike) in self.neurons.iter_mut().zip(input_spikes) {
-            neuron.integrate(input_spike, time_step);
+    pub fn update(&mut self, input_spikes: &[Vec<T>], time_step: f64, impulse_duration: f64) -> Vec<bool> {
+        let mut output_spikes = Vec::with_capacity(self.neurons.len());
+
+        for (neuron, input_spike) in self.neurons.iter_mut().zip(input_spikes) {
+            let fired = neuron.integrate(input_spike, time_step, impulse_duration);
+            output_spikes.push(fired);
         }
+
+        output_spikes
     }
 }
