@@ -3,6 +3,8 @@
 pub trait Neuron: 'static + Clone {
     type ClassNeuron: 'static + Sized + Clone + Sync;}
 
+
+#[derive(Clone, Copy, Debug)]
 pub struct LIFNeuron {
     membrane_potential: f64,
     reset_potential: f64,
@@ -28,8 +30,5 @@ impl LIFNeuron {
     }
 }
 
-#[derive(Clone, Copy, Debug)]
-pub struct LeakyIntegrateFire;
-
-impl Neuron for LeakyIntegrateFire {
+impl Neuron for LIFNeuron {
     type ClassNeuron = LIFNeuron;}

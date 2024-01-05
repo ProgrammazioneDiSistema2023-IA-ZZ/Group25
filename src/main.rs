@@ -1,8 +1,9 @@
 
 // File: main.rs
 
-mod lif_neuron; // Importa il modulo neuron
-use lif_neuron::LIFNeuron; 
+mod lif_neuron;
+pub mod neural_layer; // Importa il modulo neuron
+use crate::lif_neuron::LIFNeuron;
 
 mod neural_network; // Importa il modulo NN
 use neural_network::NeuralNetwork;
@@ -16,15 +17,9 @@ fn main() {
     // Configura il neurone di partenza
     let neuron_params = LIFNeuron::new(RESET_POTENTIAL, RESTING_POTENTIAL, THRESHOLD, TAU);
 
-    // Configura la rete neurale con un singolo strato di 5 neuroni
-    let network = NeuralNetwork::new(vec![5], neuron_params);
-
-    // Connetti gli strati della rete
-    network.connect_layers();
+    // Configura la rete neurale
+    let network = NeuralNetwork::new(vec![3,2,3], neuron_params);
 
     // Definisci gli input per la simulazione (ad esempio, un impulso iniziale)
     let input = vec![true, false, false, false, false];
-
-    // Esegui la simulazione
-    network.run_simulation(input);
 }
