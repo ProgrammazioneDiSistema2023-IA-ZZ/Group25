@@ -4,6 +4,9 @@
 mod lif_neuron; // Importa il modulo neuron
 use lif_neuron::LIFNeuron; 
 
+mod neural_network; // Importa il modulo NN
+use neural_network::NeuralNetwork;
+
 const RESET_POTENTIAL: f64 = 0.0;
 const RESTING_POTENTIAL: f64 = 10.0;
 const THRESHOLD: f64 = 55.0;
