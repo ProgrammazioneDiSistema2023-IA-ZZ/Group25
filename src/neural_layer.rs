@@ -1,34 +1,31 @@
 // neural_layer.rs
 use crate::lif_neuron::SpikingNeuron;
 
-pub struct NeuralLayer<T> {
-    neurons: Vec<SpikingNeuron<T>>,
+#[derive(Clone)]
+pub struct Layer<M: Model> {
+    /// List of all neurons in this layer
+    pub(crate) neurons: Vec<M::Neuron>,
+    /// Matrix of the input weights. For the first layer, this must be a square diagonal matrix.
+    pub(crate) input_weights: Vec<Vec<f64>>,
+    /// Square matrix of the intra-layer weights
+    pub(crate) intra_weights: Vec<Vec<f64>>
 }
 
-impl<T> NeuralLayer<T> {
-    pub fn new(
-        size: usize,
-        reset_potential: f64,
-        resting_potential: f64,
-        threshold: f64,
-        decay_factor: f64,
-        synaptic_weights: Vec<T>,
-    ) -> Self {
-        let neurons = (0..size)
-            .map(|_| SpikingNeuron::new(reset_potential, resting_potential, threshold, decay_factor, synaptic_weights.clone()))
-            .collect();
-
-        Self { neurons }
+impl<M: Model> Layer<M> {
+    pub fn num_neurons(&self) -> usize {
+        self.neurons.len()
     }
 
-    pub fn update(&mut self, input_spikes: &[Vec<T>], time_step: f64, impulse_duration: f64) -> Vec<bool> {
-        let mut output_spikes = Vec::with_capacity(self.neurons.len());
+    
+    pub fn get_neuron(&self, neuron: usize) -> Option<&M::Neuron> {
+        self.neurons.get(neuron)
+    }
 
-        for (neuron, input_spike) in self.neurons.iter_mut().zip(input_spikes) {
-            let fired = neuron.integrate(input_spike, time_step, impulse_duration);
-            output_spikes.push(fired);
+    fn get_matrix_value<T>(&self, x: usize, y: usize) -> Option<&T> {
+        if let Some(row) = matrix.get(x) {
+            row.get(y)
+        } else {
+            None
         }
-
-        output_spikes
     }
 }
