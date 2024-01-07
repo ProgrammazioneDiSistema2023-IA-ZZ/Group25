@@ -24,9 +24,12 @@ impl<N: Neuron> NeuralLayer<N> {
         let input_weights: Vec<_> = (0..layer_size)
         .map(|_| generate_random_vector(next_size, 0.0, 10.0))
         .collect();
-    let intra_weights: Vec<_> = (0..layer_size)
+        let mut intra_weights: Vec<_> = (0..layer_size)
         .map(|_| generate_random_vector(layer_size, -10.0, 0.0))
         .collect();
+        for i in 0..layer_size { 
+            intra_weights[i][i] = 0.0; 
+        } 
 
         NeuralLayer {
             neurons,
@@ -44,9 +47,17 @@ impl<N: Neuron> NeuralLayer<N> {
         self.neurons.get(neuron)
     }
 
-    fn get_matrix_value<'a>(&'a self, matrix: &'a Vec<Vec<f64>>, x: usize, y: usize) -> Option<&f64> {
-        if let Some(row) = matrix.get(x) {
-            row.get(y)
+    pub fn get_intra_weight_value<'a>(&'a self, from: usize, to: usize) -> Option<&f64> {
+        if let Some(row) = self.intra_weights.get(from) {
+            row.get(to)
+        } else {
+            None
+        }
+    }
+
+    pub fn get_input_weight_value<'a>(&'a self, from: usize, to: usize) -> Option<&f64> {
+        if let Some(row) = self.input_weights.get(from) {
+            row.get(to)
         } else {
             None
         }

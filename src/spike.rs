@@ -18,11 +18,16 @@ impl Spike {
         }
     }
 
+     /// Get the spike time of the current spike
+     pub fn get_spike_time(&self) -> u128 {
+        self.spike_time
+    }
+
     /// Create an array of spikes for a single neuron, given its ID.
     /// The `ts_vec` does not need to be ordered.
     /// 
     
-    pub fn create_spike_vec(neuron_id: usize, ts_vec: Vec<u128>) -> Vec<Spike> {
+    pub fn create_spike_vec(neuron_id: usize, layer_id: usize, ts_vec: Vec<u128>) -> Vec<Spike> {
         let mut spike_vec : Vec<Spike> = Vec::with_capacity(ts_vec.len());
         
         //Creating the Spikes array for a single Neuron
@@ -42,12 +47,12 @@ impl Spike {
     /// It takes a Matrix where i-th row represents an array of spikes for the i-th entry neuron,
     /// then a single Vec is created. Eventually the array is sorted.
     
-    pub fn get_all_spikes(spikes: Vec<Vec<Spike>>) -> Vec<Spike> {
-        let mut res: Vec<Spike> = Vec::new();
+    pub fn get_all_spikes(spikes: Vec<Vec<Spike>>) -> Vec<u128> {
+        let mut res: Vec<u128> = Vec::new();
 
         for line in spikes {
             for spike in line {
-                res.push(spike);
+                res.push(spike.get_spike_time());
             }
         }
         res.sort(); //ascending

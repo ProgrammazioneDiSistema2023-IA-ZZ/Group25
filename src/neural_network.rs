@@ -35,4 +35,5 @@ impl<N: Neuron> NeuralNetwork<N> {
     pub fn get_layer(&self, index: usize) -> Option<&NeuralLayer<N>> {
         self.layers.get(index)
     }
+
 }
