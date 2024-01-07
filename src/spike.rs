@@ -23,6 +23,16 @@ impl Spike {
         self.spike_time
     }
 
+     /// Get the spike neuron id of the current spike
+     pub fn get_spike_neuron_id(&self) -> usize {
+        self.neuron_id
+    }
+
+      /// Get the spike layer id of the current spike
+      pub fn get_spike_layer_id(&self) -> usize {
+        self.layer_id
+    }
+
     /// Create an array of spikes for a single neuron, given its ID.
     /// The `ts_vec` does not need to be ordered.
     /// 
@@ -60,3 +70,49 @@ impl Spike {
         res
     }
 }
+
+  // Assumiamo che la struttura Spike sia già definita, ad esempio:
+// struct Spike { /* definizione dei campi */ }
+
+pub fn action_spike(mut spikes: Vec<Vec<Spike>>) -> f64 {
+    // Verifica se ci sono spikes nel vettore
+    if let Some(mut layer_spikes) = spikes.pop() {
+        // Estrai il primo spike dal vettore
+        if let Some(mut spike) = layer_spikes.pop() {
+            // Aziona lo spike (fai qualcosa con esso)
+            let action_result = action_single_spike(&mut spike);
+
+            // Se l'azione ha avuto successo, continua con la propagazione
+            if action_result == 1 {
+                // Esegui la propagazione dello spike
+                propagate_spike(&mut layer_spikes);
+            }
+
+            // Restituisci un valore f64 a tuo piacimento
+            return 42.0; // Modifica questo valore in base alle tue esigenze
+        }
+    }
+
+    // Restituisci un valore predefinito se non ci sono spikes da processare
+    return 0.0; // Modifica questo valore in base alle tue esigenze
+}
+
+// Funzione per azionare uno spike
+fn action_single_spike(spike: &mut Spike) -> i32 {
+    // Fai qualcosa con lo spike e restituisci un risultato (ad esempio, 1 se ha avuto successo)
+    //prendi il layer id dallo spike per poter usare la funzione handle_spike sul neurone (ottenuto sempre dallo spike)
+    
+
+    1 // Modifica questo valore in base alle tue esigenze
+}
+
+// Funzione per propagare uno spike nel caso di successo
+fn propagate_spike(layer_spikes: &mut Vec<Spike>) {
+    // Implementa la propagazione dello spike nel vettore
+    // ...
+
+    // Esempio di propagazione: inserisci uno spike nel vettore
+    // let new_spike = Spike { /* inizializza i campi dello spike */ };
+    // layer_spikes.push(new_spike);
+}
+
