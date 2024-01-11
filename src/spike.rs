@@ -1,3 +1,6 @@
+
+use crate::{neural_network::NeuralNetwork, lif_neuron::Neuron};
+
 #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Debug)]
 pub struct Spike {
     /// Stands for "time of the spike", and represents a timestamp of when the spike occurs
@@ -69,33 +72,51 @@ impl Spike {
     
         res
     }
+
+    pub fn get_all_spike_time(spikes: Vec<Vec<Spike>>) -> Vec<Vec<u128>> {
+        let mut res: Vec<Vec<u128>> = Vec::new();
+
+        for line in spikes {
+            let mut riga: Vec<u128> = Vec::new();
+            for spike in line {
+                riga.push(spike.get_spike_time());
+            }
+            res.push(riga);
+        }
+        res.sort(); //ascending
+    
+        res
+    }
+}
+
+
+fn contains_time<'a>(spike_vec: &'a [Spike], time: u128) -> Option<&'a Spike> {
+    for spike in spike_vec.iter() {
+        if spike.spike_time == time {
+            return Some(spike);
+        }
+    }
+    None
 }
 
   // Assumiamo che la struttura Spike sia già definita, ad esempio:
 // struct Spike { /* definizione dei campi */ }
 
-pub fn action_spike(mut spikes: Vec<Vec<Spike>>) -> f64 {
-    // Verifica se ci sono spikes nel vettore
-    if let Some(mut layer_spikes) = spikes.pop() {
-        // Estrai il primo spike dal vettore
-        if let Some(mut spike) = layer_spikes.pop() {
-            // Aziona lo spike (fai qualcosa con esso)
-            let action_result = action_single_spike(&mut spike);
-
-            // Se l'azione ha avuto successo, continua con la propagazione
-            if action_result == 1 {
-                // Esegui la propagazione dello spike
-                propagate_spike(&mut layer_spikes);
+pub fn action_spike<N: Neuron>(mut spikes: Vec<Vec<Spike>>, time: u128, network: NeuralNetwork<N>) -> bool {
+    for riga in spikes.iter() {
+        match contains_time(&riga, time) {
+            Some(spike) => {
+                let neuron = network.get_neuron(spike.layer_id, spike.neuron_id);
+                neuron.put_sum(1); // SISTEMARE QUA
+                println!("Spike trovato - Neuron ID: {}, Layer ID: {}, Time: {}", spike.neuron_id, spike.layer_id, time);
             }
-
-            // Restituisci un valore f64 a tuo piacimento
-            return 42.0; // Modifica questo valore in base alle tue esigenze
+            None => {
+                println!("Spike con tempo {} non trovato.", time);
+            }
         }
-    }
-
-    // Restituisci un valore predefinito se non ci sono spikes da processare
-    return 0.0; // Modifica questo valore in base alle tue esigenze
+    
 }
+false}
 
 // Funzione per azionare uno spike
 fn action_single_spike(spike: &mut Spike) -> i32 {

@@ -4,7 +4,7 @@ use crate::neural_layer::NeuralLayer;
 #[derive(Clone)]
 pub struct NeuralNetwork<N: Neuron> {
     /// All the sorted layers of the neural network
-    layers: Vec<NeuralLayer<N>>
+    pub layers: Vec<NeuralLayer<N>>
 }
 
 impl<N: Neuron> NeuralNetwork<N> {
@@ -34,6 +34,11 @@ impl<N: Neuron> NeuralNetwork<N> {
     /// Get a reference to a specific layer by index
     pub fn get_layer(&self, index: usize) -> Option<&NeuralLayer<N>> {
         self.layers.get(index)
+    }
+
+    /// Get a reference to a specific neuron
+    pub fn get_neuron(&self, index_layer: usize, index_neuron: usize) -> Option<&N> {
+        return self.get_layer(index_layer)?.get_neuron(index_neuron);
     }
 
 }

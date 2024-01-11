@@ -13,6 +13,7 @@ pub struct LIFNeuron {
     tau: f64,
     last_spike_time: f64,
     last_membrane_potential: f64,
+    sum: f64
 }
 
 impl LIFNeuron {
@@ -30,25 +31,31 @@ impl LIFNeuron {
             tau,
             last_spike_time : 0.0,
             last_membrane_potential: resting_potential,
+            sum: 0.0
         }
     }
 
-    fn handle_spike(&mut self, weighted_input_val: f64, current_spike_time: f64) -> f64 {
+    pub fn handle_spike(&mut self, current_spike_time: f64) -> f64 {
         // This early exit serves as a small optimization
-        if weighted_input_val == 0.0 { return 0.0 }
+        if self.sum == 0.0 { return 0.0 }
         
         let delta_t = current_spike_time - self.last_spike_time;
         self.last_spike_time = current_spike_time;
 
         // compute the new v_mem value
-        self.membrane_potential = self.resting_potential + (self.membrane_potential - self.resting_potential) * (-delta_t / self.tau).exp() + weighted_input_val;
-
+        self.membrane_potential = self.resting_potential + (self.membrane_potential - self.resting_potential) * (-delta_t / self.tau).exp() + self.sum;
+        self.sum = 0.0;
         if self.membrane_potential > self.threshold {
             self.membrane_potential = self.reset_potential;
             1.0 
         } else {
             0.0
         }
+    }
+
+    // Metodo per aggiungere un valore a sum
+    pub fn put_sum(&mut self, value: f64) {
+        self.sum += value;
     }
 
 }

@@ -1,9 +1,8 @@
-
 // File: main.rs
 
 mod lif_neuron;
 pub mod neural_layer; // Importa il modulo neuron
-use crate::lif_neuron::LIFNeuron;
+use crate::{lif_neuron::LIFNeuron, spike::action_spike};
 
 mod neural_network; // Importa il modulo NN
 use neural_network::NeuralNetwork;
@@ -25,7 +24,7 @@ fn main() {
     // Configura la rete neurale
     let network = NeuralNetwork::new(vec![3,3,3], neuron_params);
 
-    let spikes_neuron_1 = [11, 9, 23, 43, 42].to_vec();
+    let spikes_neuron_1 = [11, 9, 23, 3, 42].to_vec();
     let spike_vec_for_neuron_1 = Spike::create_spike_vec(1, 1, spikes_neuron_1);
      
     let spikes_neuron_2 = [10, 29, 3, 11, 22].to_vec();
@@ -35,8 +34,7 @@ fn main() {
     spikes.push(spike_vec_for_neuron_1);
     spikes.push(spike_vec_for_neuron_2);
     
-    let sorted_spike_array_for_nn = Spike::get_all_spikes(spikes);
-
+    let mut sorted_spike_array_for_nn = Spike::get_all_spikes(spikes.clone());
     let mut time = 0;
 
     while !check_empty_spike_vec(sorted_spike_array_for_nn.clone()) {
@@ -44,8 +42,8 @@ fn main() {
         time += 1;
 
         if sorted_spike_array_for_nn.contains(&time) {
-            println!("Il valore di time coincide con uno dei valori in sorted_spike_array_for_nn: {}", time);
-            break; // Esci dal ciclo se la condizione è soddisfatta
+            action_spike(spikes.clone(), time, network.clone());
+            //ATTENZIONE TOGLIERE I VALORI DI sorted_spike_array_for_nn (CICLO INFINITO)
         }
 
     }
