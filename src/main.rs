@@ -16,7 +16,6 @@ const THRESHOLD: f64 = 55.0;
 const TAU: f64 = 10.0;
 
 fn main() {
-    let time = 0;
     // Configura il neurone di partenza
     //DOBBIAMO METTERLO MUT?????????????
     let neuron_params = LIFNeuron::new(RESET_POTENTIAL, RESTING_POTENTIAL, THRESHOLD, TAU);
@@ -42,7 +41,8 @@ fn main() {
         time += 1;
 
         if sorted_spike_array_for_nn.contains(&time) {
-            action_spike(spikes.clone(), time, network.clone());
+            let nn = network.clone();
+            action_spike(spikes.clone(), time, &mut network, &nn);
             //ATTENZIONE TOGLIERE I VALORI DI sorted_spike_array_for_nn (CICLO INFINITO)
         }
 

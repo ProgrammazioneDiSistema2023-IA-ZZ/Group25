@@ -1,5 +1,5 @@
 
-use crate::{neural_network::NeuralNetwork, lif_neuron::Neuron, neural_layer::NeuralLayer};
+use crate::{neural_network::NeuralNetwork, lif_neuron::Neuron};
 
 #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Debug)]
 pub struct Spike {
@@ -102,13 +102,13 @@ fn contains_time<'a>(spike_vec: &'a [Spike], time: u128) -> Option<&'a Spike> {
   // Assumiamo che la struttura Spike sia già definita, ad esempio:
 // struct Spike { /* definizione dei campi */ }
 
-pub fn action_spike<N: Neuron>(spikes: Vec<Vec<Spike>>, time: u128, mut network: NeuralNetwork<N>) -> bool {
+pub fn action_spike<N: Neuron>(spikes: Vec<Vec<Spike>>, time: u128, network: &mut NeuralNetwork<N>, nn: &NeuralNetwork<N>) -> bool {
     for riga in spikes.iter() {
         match contains_time(&riga, time) {
             Some(spike) => {
-                if let Some(neuron) = network.get_neuron(spike.layer_id, spike.neuron_id) {
+                if let Some(neuron) = network.get_neuron_mut(spike.layer_id, spike.neuron_id) {
                     neuron.put_sum(1.0);
-                    call_handle_spike(neuron, time, spike.neuron_id, spike.layer_id, network);
+                    call_handle_spike(neuron, time, spike.neuron_id, spike.layer_id, nn);
                     println!("Spike trovato - Neuron ID: {}, Layer ID: {}, Time: {}", spike.neuron_id, spike.layer_id, time);
                 } else {
                     println!("Failed to get mutable reference to neuron.");
@@ -122,25 +122,25 @@ pub fn action_spike<N: Neuron>(spikes: Vec<Vec<Spike>>, time: u128, mut network:
     false
 }
 
-pub fn propagate_spike<N: Neuron>(spike: &mut Spike, network: &mut NeuralNetwork<N>) { 
+pub fn propagate_spike<N: Neuron>(spike: &mut Spike, network: &NeuralNetwork<N>) { 
     let n = spike.neuron_id;
     let time = spike.spike_time + 1;
     
     let current_layer_id = spike.layer_id;
     let next_layer_id = spike.layer_id + 1;
-    //let pre_synaptic_neuron = network.get_neuron(spike.layer_id, spike.neuron_id); 
+    //let pre_synaptic_neuron = network.get_neuron(spike.layer_id, spike.neuron_id);
 
     let current_layer = network.get_layer(current_layer_id).expect("non esite layer corrente");
     let next_layer = network.get_layer(next_layer_id).expect("non esite layer successivo");
  
-    for (index, neuron) in next_layer.neurons.iter_mut().enumerate() {
+    for (index, neuron) in next_layer.get_neurons().iter_mut().enumerate() {
         let weight = current_layer.get_input_weight_value(n, index).expect("non esite il peso"); 
         neuron.put_sum(*weight); 
         println!("Neurone aggiornato: {} {}", index, next_layer_id);
         neuron.handle_spike(time);
     }
 
-    for (index, neuron) in next_layer.neurons.iter_mut().enumerate() {
+    for (index, neuron) in next_layer.get_neurons().iter_mut().enumerate() {
         let weight = current_layer.get_intra_weight_value(n, index).expect("non esite il peso"); 
         neuron.put_sum(*weight); 
         println!("Neurone aggiornato: {} {}", index, current_layer_id);
@@ -149,12 +149,12 @@ pub fn propagate_spike<N: Neuron>(spike: &mut Spike, network: &mut NeuralNetwork
     
 }
 
-pub fn call_handle_spike<N: Neuron>(mut neuron: N, time: u128, neuron_id: usize, layer_id: usize, network: &mut NeuralNetwork<N>) {
+pub fn call_handle_spike<N: Neuron>(neuron: &mut N, time: u128, neuron_id: usize, layer_id: usize, network: &NeuralNetwork<N>) {
     let result = neuron.handle_spike(time);
     match result {
         1.0 => {
-            let mut spike = &Spike::new(time, neuron_id, layer_id);
-            propagate_spike(spike, network);
+            let mut spike = Spike::new(time, neuron_id, layer_id);
+            propagate_spike(&mut spike, network);
         }
         _ => {}
     }

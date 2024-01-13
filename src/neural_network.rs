@@ -41,11 +41,19 @@ impl<N: Neuron> NeuralNetwork<N> {
         self.layers.get_mut(index_layer)
     }
 
+     /// Get a reference to a specific neuron
+     pub fn get_neuron(&self, index_layer: usize, index_neuron: usize) -> Option<&N> {
+        let l = self.get_layer(index_layer)?;
+        let s = l.get_neuron(index_neuron);
+        return s;
+    }
+
     /// Get a reference to a specific neuron
-    pub fn get_neuron(&mut self, index_layer: usize, index_neuron: usize) -> Option<&mut N> {
+    pub fn get_neuron_mut(&mut self, index_layer: usize, index_neuron: usize) -> Option<&mut N> {
         let l = self.get_layer_mut(index_layer)?;
         let s = l.get_neuron_mut(index_neuron);
         return s;
     }
+
 
 }

@@ -51,6 +51,14 @@ impl<N: Neuron> NeuralLayer<N> {
         self.neurons.get_mut(index_neuron)
     }
 
+    pub fn get_neurons(&self) -> Vec<N>{
+        self.neurons.clone()
+    }
+
+    pub fn get_neurons_mut(&mut self) -> Vec<N>{
+        self.neurons.clone()
+    }
+
     pub fn get_intra_weight_value<'a>(&'a self, from: usize, to: usize) -> Option<&f64> {
         if let Some(row) = self.intra_weights.get(from) {
             row.get(to)
