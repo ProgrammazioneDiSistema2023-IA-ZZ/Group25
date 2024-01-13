@@ -1,6 +1,7 @@
 use crate::lif_neuron::Neuron;
 use crate::neural_layer::NeuralLayer;
 
+
 #[derive(Clone)]
 pub struct NeuralNetwork<N: Neuron> {
     /// All the sorted layers of the neural network
@@ -36,9 +37,15 @@ impl<N: Neuron> NeuralNetwork<N> {
         self.layers.get(index)
     }
 
+    pub fn get_layer_mut(&mut self, index_layer: usize) -> Option<&mut NeuralLayer<N>> {
+        self.layers.get_mut(index_layer)
+    }
+
     /// Get a reference to a specific neuron
-    pub fn get_neuron(&self, index_layer: usize, index_neuron: usize) -> Option<&N> {
-        return self.get_layer(index_layer)?.get_neuron(index_neuron);
+    pub fn get_neuron(&mut self, index_layer: usize, index_neuron: usize) -> Option<&mut N> {
+        let l = self.get_layer_mut(index_layer)?;
+        let s = l.get_neuron_mut(index_neuron);
+        return s;
     }
 
 }

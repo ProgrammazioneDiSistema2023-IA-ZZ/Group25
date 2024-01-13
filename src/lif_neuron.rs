@@ -1,7 +1,11 @@
 // lif_neuron.rs
 
 pub trait Neuron: 'static + Clone {
-    type ClassNeuron: 'static + Sized + Clone + Sync;}
+    type ClassNeuron: 'static + Sized + Clone + Sync;
+
+    fn put_sum(&mut self, value: f64);
+    fn handle_spike(&mut self, current_spike_time: u128) -> f64;
+}
 
 
 #[derive(Clone, Copy, Debug)]
@@ -11,7 +15,7 @@ pub struct LIFNeuron {
     resting_potential: f64,
     threshold: f64,
     tau: f64,
-    last_spike_time: f64,
+    last_spike_time: u128,
     last_membrane_potential: f64,
     sum: f64
 }
@@ -29,17 +33,29 @@ impl LIFNeuron {
             resting_potential,
             threshold,
             tau,
-            last_spike_time : 0.0,
+            last_spike_time : 0,
             last_membrane_potential: resting_potential,
             sum: 0.0
         }
     }
 
-    pub fn handle_spike(&mut self, current_spike_time: f64) -> f64 {
+
+
+}
+
+impl Neuron for LIFNeuron {
+    type ClassNeuron = LIFNeuron;
+
+    // Metodo per aggiungere un valore a sum
+    fn put_sum(&mut self, value: f64) {
+        self.sum += value;
+    }
+
+    fn handle_spike(&mut self, current_spike_time: u128) -> f64 {
         // This early exit serves as a small optimization
         if self.sum == 0.0 { return 0.0 }
         
-        let delta_t = current_spike_time - self.last_spike_time;
+        let delta_t = (current_spike_time - self.last_spike_time)as f64;
         self.last_spike_time = current_spike_time;
 
         // compute the new v_mem value
@@ -52,14 +68,4 @@ impl LIFNeuron {
             0.0
         }
     }
-
-    // Metodo per aggiungere un valore a sum
-    pub fn put_sum(&mut self, value: f64) {
-        self.sum += value;
-    }
-
-}
-
-impl Neuron for LIFNeuron {
-    type ClassNeuron = LIFNeuron;
 }

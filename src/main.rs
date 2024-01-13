@@ -16,13 +16,13 @@ const THRESHOLD: f64 = 55.0;
 const TAU: f64 = 10.0;
 
 fn main() {
-    let mut time = 0;
+    let time = 0;
     // Configura il neurone di partenza
     //DOBBIAMO METTERLO MUT?????????????
     let neuron_params = LIFNeuron::new(RESET_POTENTIAL, RESTING_POTENTIAL, THRESHOLD, TAU);
 
     // Configura la rete neurale
-    let network = NeuralNetwork::new(vec![3,3,3], neuron_params);
+    let mut network = NeuralNetwork::new(vec![3,3,3], neuron_params);
 
     let spikes_neuron_1 = [11, 9, 23, 3, 42].to_vec();
     let spike_vec_for_neuron_1 = Spike::create_spike_vec(1, 1, spikes_neuron_1);
@@ -34,7 +34,7 @@ fn main() {
     spikes.push(spike_vec_for_neuron_1);
     spikes.push(spike_vec_for_neuron_2);
     
-    let mut sorted_spike_array_for_nn = Spike::get_all_spikes(spikes.clone());
+    let sorted_spike_array_for_nn = Spike::get_all_spikes(spikes.clone());
     let mut time = 0;
 
     while !check_empty_spike_vec(sorted_spike_array_for_nn.clone()) {
