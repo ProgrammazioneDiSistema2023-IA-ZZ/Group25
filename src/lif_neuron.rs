@@ -4,7 +4,7 @@ pub trait Neuron: 'static + Clone {
     type ClassNeuron: 'static + Sized + Clone + Sync;
 
     fn put_sum(&mut self, value: f64);
-    fn handle_spike(&mut self, current_spike_time: u128) -> f64;
+    fn handle_spike(&mut self, current_spike_time: u128) -> u128;
 }
 
 
@@ -51,9 +51,9 @@ impl Neuron for LIFNeuron {
         self.sum += value;
     }
 
-    fn handle_spike(&mut self, current_spike_time: u128) -> f64 {
+    fn handle_spike(&mut self, current_spike_time: u128) -> u128 {
         // This early exit serves as a small optimization
-        if self.sum == 0.0 { return 0.0 }
+        if self.sum == 0.0 { return 0 }
         
         let delta_t = (current_spike_time - self.last_spike_time)as f64;
         self.last_spike_time = current_spike_time;
@@ -63,9 +63,9 @@ impl Neuron for LIFNeuron {
         self.sum = 0.0;
         if self.membrane_potential > self.threshold {
             self.membrane_potential = self.reset_potential;
-            1.0 
+            1
         } else {
-            0.0
+            0
         }
     }
 }

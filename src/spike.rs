@@ -152,7 +152,7 @@ pub fn propagate_spike<N: Neuron>(spike: &mut Spike, network: &NeuralNetwork<N>)
 pub fn call_handle_spike<N: Neuron>(neuron: &mut N, time: u128, neuron_id: usize, layer_id: usize, network: &NeuralNetwork<N>) {
     let result = neuron.handle_spike(time);
     match result {
-        1.0 => {
+        1 => {
             let mut spike = Spike::new(time, neuron_id, layer_id);
             propagate_spike(&mut spike, network);
         }

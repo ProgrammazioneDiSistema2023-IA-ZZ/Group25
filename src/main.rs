@@ -12,7 +12,7 @@ use spike::Spike;
 
 const RESET_POTENTIAL: f64 = 0.0;
 const RESTING_POTENTIAL: f64 = 10.0;
-const THRESHOLD: f64 = 55.0;
+const THRESHOLD: f64 = 1.0;
 const TAU: f64 = 10.0;
 
 fn main() {
@@ -23,7 +23,7 @@ fn main() {
     // Configura la rete neurale
     let mut network = NeuralNetwork::new(vec![3,3,3], neuron_params);
 
-    let spikes_neuron_1 = [11, 9, 23, 3, 42].to_vec();
+    let spikes_neuron_1 = [1, 2, 3, 4, 5].to_vec();
     let spike_vec_for_neuron_1 = Spike::create_spike_vec(1, 1, spikes_neuron_1);
      
     let spikes_neuron_2 = [10, 29, 3, 11, 22].to_vec();
