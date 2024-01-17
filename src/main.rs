@@ -21,31 +21,44 @@ fn main() {
     let neuron_params = LIFNeuron::new(RESET_POTENTIAL, RESTING_POTENTIAL, THRESHOLD, TAU);
 
     // Configura la rete neurale
-    let input_weights: Vec<Vec<Vec<f64>>> = vec![
+    let input_weights: Vec<Vec<Vec<f64>>> = 
     vec![
-        vec![1.0, 0.0, 0.0], vec![0.0, 1.0, 0.0], vec![0.0, 0.0, 1.0]],
-    vec![
-        vec![9.05, 0.03, 4.49], vec![2.24, 1.79, 1.33], vec![4.78, 5.75, 9.94], vec![5.16, 3.92, 5.64]],
-    vec![
-        vec![0.54, 9.09, 1.91, 0.63], vec![5.58, 4.72, 2.12, 8.82], vec![5.58, 0.92, 2.70, 0.93]]
+        vec![
+            vec![1.0, 0.0, 0.0], 
+            vec![0.0, 1.0, 0.0], 
+            vec![0.0, 0.0, 1.0]],
+        vec![
+            vec![9.05, 0.03, 4.49], 
+            vec![2.24, 1.79, 1.33], 
+            vec![4.78, 5.75, 9.94], 
+            vec![5.16, 3.92, 5.64]],
+        vec![
+            vec![0.54, 9.09, 1.91, 0.63], 
+            vec![5.58, 4.72, 2.12, 8.82], 
+            vec![5.58, 0.92, 2.70, 0.93]]
     ];
 
-    let intra_weights: Vec<Vec<Vec<f64>>> = vec![
+    let intra_weights: Vec<Vec<Vec<f64>>> = 
     vec![
-        vec![0.00, -2.23, -2.12], vec![-2.70, 0.00, -0.25], vec![-0.06, -1.39, 0.00]],
-    vec![
-        vec![0.00, -1.87, -2.98, -2.68],
-        vec![-0.50, 0.00, -1.77, -0.18], 
-        vec![-2.63, -1.55, 0.00, -0.31], 
-        vec![-0.59, -2.66, -1.29, 0.00]
-        ],
-    vec![
-        vec![0.00, -0.24, -2.24 ], vec![-1.84, 0.00, -1.32], vec![-0.12, -1.73, 0.00]]
+        vec![
+            vec![0.00, -2.23, -2.12], 
+            vec![-2.70, 0.00, -0.25], 
+            vec![-0.06, -1.39, 0.00]],
+        vec![
+            vec![0.00, -1.87, -2.98, -2.68],
+            vec![-0.50, 0.00, -1.77, -0.18], 
+            vec![-2.63, -1.55, 0.00, -0.31], 
+            vec![-0.59, -2.66, -1.29, 0.00]
+            ],
+        vec![
+            vec![0.00, -0.24, -2.24 ],
+            vec![-1.84, 0.00, -1.32],
+            vec![-0.12, -1.73, 0.00]]
     ];
 
     let mut network = NeuralNetwork::new(vec![3,4,3], input_weights, intra_weights, neuron_params);
 
-    let mut spikes = create_spike();
+    let spikes = create_spike();
     let sorted_spike_array_for_nn = Spike::get_all_spikes(spikes.clone());
     let max_value = sorted_spike_array_for_nn
     .iter()
@@ -68,9 +81,9 @@ fn main() {
 }
 
 
-fn check_empty_spike_vec(sorted_spike_array_for_nn: Vec<u128>) -> bool {
+/* fn check_empty_spike_vec(sorted_spike_array_for_nn: Vec<u128>) -> bool {
     sorted_spike_array_for_nn.is_empty()
-}
+} */
 
 fn create_spike() -> Vec<Vec<Spike>>{
     

@@ -72,7 +72,7 @@ impl Spike {
     
         res
     }
-
+/* 
     pub fn get_all_spike_time(spikes: Vec<Vec<Spike>>) -> Vec<Vec<u128>> {
         let mut res: Vec<Vec<u128>> = Vec::new();
 
@@ -86,7 +86,7 @@ impl Spike {
         res.sort(); //ascending
     
         res
-    }
+    } */
 }
 
 
@@ -122,32 +122,32 @@ pub fn action_spike<N: Neuron>(spikes: Vec<Vec<Spike>>, time: u128, network: &mu
     false
 }
 
-pub fn propagate_spike<N: Neuron>(spike: &mut Spike, network: &NeuralNetwork<N>) { 
+pub fn propagate_spike<N: Neuron>(spike: &mut Spike, network: &NeuralNetwork<N>) {
     let n = spike.neuron_id;
     let time = spike.spike_time + 1;
     
     let current_layer_id = spike.layer_id;
     let next_layer_id = spike.layer_id + 1;
-    //let pre_synaptic_neuron = network.get_neuron(spike.layer_id, spike.neuron_id);
 
-    let current_layer = network.get_layer(current_layer_id).expect("non esite layer corrente");
-    let next_layer = network.get_layer(next_layer_id).expect("non esite layer successivo");
- 
-    for (index, neuron) in next_layer.get_neurons().iter_mut().enumerate() {
-        let weight = next_layer.get_input_weight_value(n, index).expect("non esite il peso"); 
-        neuron.put_sum(*weight); 
-        println!("Neurone aggiornato: {} {}", index, next_layer_id);
-        call_handle_spike(neuron, time, index, next_layer_id, network);
+    let current_layer = network.get_layer(current_layer_id).expect("non esiste layer corrente");
+
+    if let Some(next_layer) = network.get_layer(next_layer_id) {
+        for (index, neuron) in next_layer.get_neurons().iter_mut().enumerate() {
+            let weight = next_layer.get_input_weight_value(n, index).expect("non esiste il peso");
+            neuron.put_sum(*weight);
+            println!("Neurone aggiornato: {} {}", index, next_layer_id);
+            call_handle_spike(neuron, time, index, next_layer_id, network);
+        }
     }
 
     for (index, neuron) in current_layer.get_neurons().iter_mut().enumerate() {
-        let weight = current_layer.get_intra_weight_value(n, index).expect("non esite il peso"); 
-        neuron.put_sum(*weight); 
+        let weight = current_layer.get_intra_weight_value(n, index).expect("non esiste il peso");
+        neuron.put_sum(*weight);
         println!("Neurone aggiornato: {} {}", index, current_layer_id);
         call_handle_spike(neuron, time, index, current_layer_id, network);
     }
-    
 }
+
 
 pub fn call_handle_spike<N: Neuron>(neuron: &mut N, time: u128, neuron_id: usize, layer_id: usize, network: &NeuralNetwork<N>) {
     let result = neuron.handle_spike(time);
