@@ -3,6 +3,7 @@
 use crate::lif_neuron::LIFNeuron;
 use crate::neural_layer::NeuralLayer;
 use crate ::neural_network::NeuralNetwork;
+use crate::spike::Spike;
 
 const RESET_POTENTIAL: f64 = 0.7;
 const RESTING_POTENTIAL: f64 = 2.0;
@@ -140,8 +141,53 @@ fn test_neural_network_configuration_2() {
 
 
 
+#[test]
+    fn test_create_spike_vec() {
+        // Chiamare la funzione da testare con i parametri desiderati
+        let neuron_id = 1;
+        let layer_id = 1;
+        let ts_vec = vec![1, 5 ,7];
+        let result = Spike::create_spike_vec(neuron_id, layer_id, ts_vec.clone());
+
+        // Assert per verificare che il risultato sia quello atteso
+        assert_eq!(result.len(), ts_vec.len());
+
+        // Verifica che gli spike siano ordinati per tempo
+        for i in 1..result.len() {
+            assert!(result[i - 1].spike_time <= result[i].spike_time);
+        }
+
+        // Verifica che gli spike abbiano i valori corretti
+        for (i, &time) in ts_vec.iter().enumerate() {
+            assert_eq!(result[i].neuron_id, neuron_id);
+            assert_eq!(result[i].layer_id, layer_id);
+            assert_eq!(result[i].spike_time, time);
+        }
+    }
 
 
+    #[test]
+    fn test_get_all_spikes() {
+        // Creare un esempio di vettore di vettori di Spike
+        let spikes = vec![
+            vec![
+                Spike::new(1, 0, 1),
+                Spike::new(3, 1, 1),
+                Spike::new(5, 2, 1),
+            ],
+            vec![
+                Spike::new(2, 0, 2),
+                Spike::new(4, 1, 2),
+                Spike::new(6, 2, 2),
+            ],
+        ];
+
+        // Chiamare la funzione da testare
+        let result = Spike::get_all_spikes(spikes);
+
+        // Verificare che il risultato sia ordinato e contenga tutti i tempi degli spike
+        assert_eq!(result, vec![1, 2, 3, 4, 5, 6]);
+    }
 
 
 // #[test]
