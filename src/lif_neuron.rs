@@ -17,12 +17,12 @@ pub trait Neuron: 'static + Clone {
 #[derive(Clone, Copy, Debug)]
 pub struct LIFNeuron {
     pub membrane_potential: f64,
-    reset_potential: f64,
-    resting_potential: f64,
-    threshold: f64,
-    tau: f64,
-    last_spike_time: u128,
-    sum: f64
+    pub reset_potential: f64,
+    pub resting_potential: f64,
+    pub threshold: f64,
+    pub tau: f64,
+    pub last_spike_time: u128,
+    pub sum: f64
 }
 
 impl LIFNeuron {

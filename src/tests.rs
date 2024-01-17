@@ -15,7 +15,7 @@ fn test_lif_neuron_creation() {
     const TAU: f64 = 1.0;
 
     // Creazione di un neurone utilizzando i valori di default
-    let neuron_params = LIFNeuron::new(RESET_POTENTIAL, RESTING_POTENTIAL, THRESHOLD, TAU);
+    let neuron_params = LIFNeuron::default();
 
     // Assert per verificare che i valori siano quelli attesi
     assert_eq!(neuron_params.reset_potential, RESET_POTENTIAL);
@@ -32,7 +32,7 @@ fn test_neural_network_configuration() {
     const RESTING_POTENTIAL: f64 = 2.0;
     const THRESHOLD: f64 = 2.5;
     const TAU: f64 = 1.0;
-    let neuron_params = LIFNeuron::new(RESET_POTENTIAL, RESTING_POTENTIAL, THRESHOLD, TAU);
+    let neuron_params = LIFNeuron::default();
 
     // Assert per verificare che i valori siano quelli attesi
     assert_eq!(neuron_params.reset_potential, RESET_POTENTIAL);

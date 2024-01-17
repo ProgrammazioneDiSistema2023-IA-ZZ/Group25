@@ -97,7 +97,6 @@ fn main() {
         time += 1;
 
         if sorted_spike_array_for_nn.contains(&time) {
-            let nn = network.clone();
             action_spike(spikes.clone(), time, Rc::clone(&network));
             
             //ciclo sui neuroni per calcolo soglia
