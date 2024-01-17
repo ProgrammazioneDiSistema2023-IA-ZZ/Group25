@@ -20,6 +20,9 @@ use neural_network::NeuralNetwork;
 mod spike; // Importa il modulo Spike
 use spike::Spike;
 
+mod tests;
+
+
 fn main() {
     // Configura il neurone di partenza
     // Chiedi all'utente se vuole inserire i valori del neurone
