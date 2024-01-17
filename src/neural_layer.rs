@@ -1,12 +1,12 @@
 // neural_layer.rs
 use crate::lif_neuron::Neuron;
-use rand::{Rng, thread_rng};
+/* use rand::{Rng, thread_rng};
 
 fn generate_random_vector(n: usize, min: f64, max: f64) -> Vec<f64> {
     let mut rng = thread_rng();
     (0..n).map(|_| rng.gen_range(min..max)).collect()
 }
-
+ */
 #[derive(Clone)]
 pub struct NeuralLayer<N: Neuron> {
     /// List of all neurons in this layer
