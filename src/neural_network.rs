@@ -1,3 +1,5 @@
+use std::ops::Index;
+
 use crate::lif_neuron::Neuron;
 use crate::neural_layer::NeuralLayer;
 
@@ -10,7 +12,7 @@ pub struct NeuralNetwork<N: Neuron> {
 
 impl<N: Neuron> NeuralNetwork<N> {
 
-    pub fn new(layer_sizes: Vec<usize>, neuron: N) -> NeuralNetwork<N> {
+    /*pub fn new(layer_sizes: Vec<usize>, neuron: N) -> NeuralNetwork<N> {
         let mut layers = Vec::with_capacity(layer_sizes.len());
     
         // Iterate over layer_sizes to create NeuralLayer instances
@@ -30,6 +32,27 @@ impl<N: Neuron> NeuralNetwork<N> {
         // Create and return the NeuralNetwork with the populated layers vector
         NeuralNetwork { layers }
     }
+    */
+
+    pub fn new(layer_sizes: Vec<usize>, input_weights: Vec<Vec<Vec<f64>>>, intra_weights: Vec<Vec<Vec<f64>>>, neuron: N) -> NeuralNetwork<N> {
+        let mut layers = Vec::with_capacity(layer_sizes.len());
+    
+        // Iterate over layer_sizes to create NeuralLayer instances
+        for (index, size) in layer_sizes.iter().enumerate() {
+            println!("{:?} {}", {}, index);
+            let input = input_weights.get(index).expect("out of bounds");
+            let intra = intra_weights.get(index).expect("out of bounds");
+            // Create a new NeuralLayer with the current size, next size, and neuron
+            let neural_layer = NeuralLayer::new(*size, input.to_vec(), intra.to_vec(), neuron.clone());
+            
+            // Push the created NeuralLayer into the layers vector
+            layers.push(neural_layer);
+        }
+    
+        // Create and return the NeuralNetwork with the populated layers vector
+        NeuralNetwork { layers }
+    }
+
 
 
     /// Get a reference to a specific layer by index

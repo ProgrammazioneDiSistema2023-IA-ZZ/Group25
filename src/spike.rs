@@ -134,17 +134,17 @@ pub fn propagate_spike<N: Neuron>(spike: &mut Spike, network: &NeuralNetwork<N>)
     let next_layer = network.get_layer(next_layer_id).expect("non esite layer successivo");
  
     for (index, neuron) in next_layer.get_neurons().iter_mut().enumerate() {
-        let weight = current_layer.get_input_weight_value(n, index).expect("non esite il peso"); 
+        let weight = next_layer.get_input_weight_value(n, index).expect("non esite il peso"); 
         neuron.put_sum(*weight); 
         println!("Neurone aggiornato: {} {}", index, next_layer_id);
-        neuron.handle_spike(time);
+        call_handle_spike(neuron, time, index, next_layer_id, network);
     }
 
-    for (index, neuron) in next_layer.get_neurons().iter_mut().enumerate() {
+    for (index, neuron) in current_layer.get_neurons().iter_mut().enumerate() {
         let weight = current_layer.get_intra_weight_value(n, index).expect("non esite il peso"); 
         neuron.put_sum(*weight); 
         println!("Neurone aggiornato: {} {}", index, current_layer_id);
-        neuron.handle_spike(time);
+        call_handle_spike(neuron, time, index, current_layer_id, network);
     }
     
 }

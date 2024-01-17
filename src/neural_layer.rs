@@ -19,13 +19,13 @@ pub struct NeuralLayer<N: Neuron> {
 
 impl<N: Neuron> NeuralLayer<N> {
 
-    pub fn new(layer_size: usize, next_size: usize, neuron: N) -> NeuralLayer<N> {
+    /* pub fn new(input_weights: usize, next_size: usize, neuron: N) -> NeuralLayer<N> {
         let neurons = vec![neuron; layer_size];
         let input_weights: Vec<_> = (0..layer_size)
-        .map(|_| generate_random_vector(next_size, 0.0, 10.0))
+        .map(|_| generate_random_vector(layer_size, 0.0, 10.0))
         .collect();
         let mut intra_weights: Vec<_> = (0..layer_size)
-        .map(|_| generate_random_vector(layer_size, -10.0, 0.0))
+        .map(|_| generate_random_vector(layer_size, -3.0, 0.0))
         .collect();
         for i in 0..layer_size { 
             intra_weights[i][i] = 0.0; 
@@ -37,7 +37,17 @@ impl<N: Neuron> NeuralLayer<N> {
             intra_weights,
         }
     }
-    
+     */
+
+     pub fn new(layer_size: usize, input_weights: Vec<Vec<f64>>, intra_weights: Vec<Vec<f64>>, neuron: N) -> NeuralLayer<N> {
+        let neurons = vec![neuron; layer_size];
+
+        NeuralLayer {
+            neurons,
+            input_weights,
+            intra_weights,
+        }
+    }
 
     pub fn num_neurons(&self) -> usize {
         self.neurons.len()
