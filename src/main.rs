@@ -10,6 +10,8 @@ use neural_network::NeuralNetwork;
 mod spike; // Importa il modulo Spike
 use spike::Spike;
 
+mod tests;
+
 const RESET_POTENTIAL: f64 = 0.7;
 const RESTING_POTENTIAL: f64 = 2.0;
 const THRESHOLD: f64 = 2.5;
