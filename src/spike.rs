@@ -1,6 +1,10 @@
 use std::sync::{Mutex, Arc, MutexGuard};
 use std::thread;
 
+
+use std::rc::Rc;
+use std::cell::RefCell;
+
 use crate::{neural_network::NeuralNetwork, lif_neuron::Neuron};
 
 #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Debug)]
@@ -104,14 +108,14 @@ pub fn contains_time<'a>(spike_vec: &'a [Spike], time: u128) -> Option<&'a Spike
   // Assumiamo che la struttura Spike sia già definita, ad esempio:
 // struct Spike { /* definizione dei campi */ }
 
-pub fn action_spike<N: Neuron>(spikes: Vec<Vec<Spike>>, time: u128, network: Arc<Mutex<NeuralNetwork<N>>>) {
+pub fn action_spike<N: Neuron>(spikes: Vec<Vec<Spike>>, time: u128, network: Rc<RefCell<NeuralNetwork<N>>>) {
 
     for riga in spikes.iter() {
         match contains_time(&riga, time) {
             Some(spike) => {
                 // Borrow the inner value mutabl
-                let network_clone = Arc::clone(&network);
-                let mut nn = network_clone.lock().unwrap();
+                let network_clone = Rc::clone(&network);
+                let mut nn = network_clone.borrow_mut();
                 
                 if let Some(neuron) = nn.get_neuron_mut(spike.layer_id, spike.neuron_id) {
                     neuron.put_sum(1.0);
@@ -137,20 +141,18 @@ pub fn propagate_spike<N: Neuron + 'static>(spike: &mut Spike, network: &NeuralN
     let current_layer_id = spike.layer_id;
     let next_layer_id = spike.layer_id + 1;
 
-    let current_layer = network.get_layer(current_layer_id).expect("non esiste layer corrente");
+    let current_layer = network.get_layer(current_layer_id).expect("Non esiste il layer corrente");
 
     if let Some(next_layer) = network.get_layer(next_layer_id) {
         for (index, neuron) in next_layer.get_neurons().iter_mut().enumerate() {
-            println!("inter");
-            let weight = next_layer.get_input_weight_value(n, index).expect("non esiste il peso");
+            let weight = next_layer.get_input_weight_value(n, index).expect("Non esiste il peso input");
             neuron.put_sum(*weight);
             //println!("Neurone aggiornato: {} {}", index, next_layer_id);
         }
     }
 
     for (index, neuron) in current_layer.get_neurons().iter_mut().enumerate() {
-        println!("intra");
-        let weight = current_layer.get_intra_weight_value(n, index).expect("non esiste il peso");
+        let weight = current_layer.get_intra_weight_value(n, index).expect("Non esiste il peso intra");
         neuron.put_sum(*weight);
         //println!("Neurone aggiornato: {} {}", index, current_layer_id);
     }
@@ -158,8 +160,9 @@ pub fn propagate_spike<N: Neuron + 'static>(spike: &mut Spike, network: &NeuralN
 
 
 
-pub fn call_handle_spike<N: Neuron + 'static>(neuron: &mut N, time: u128, neuron_id: usize, layer_id: usize, network: &NeuralNetwork<N>) {
-    let result = neuron.handle_spike(time);
+pub fn call_handle_spike<N: Neuron + 'static>(neuron: &N, time: u128, neuron_id: usize, layer_id: usize, network: &NeuralNetwork<N>) {
+    let mut n = neuron.clone();
+    let result = n.handle_spike(time);
     match result {
         1 => {
             println!("Neurone {}-{} ha sparato al tempo {}", neuron_id, layer_id, time);
@@ -171,28 +174,21 @@ pub fn call_handle_spike<N: Neuron + 'static>(neuron: &mut N, time: u128, neuron
 }
 
 
-pub fn update_neurons<N: Neuron + std::marker::Send + std::marker::Sync + 'static>(time: u128, network: Arc<Mutex<NeuralNetwork<N>>>) {
-    let mut nn = network.lock().unwrap();
-    let net = &*nn;
-
-    let mut handles = vec![];
+pub fn update_neurons<N: Neuron>(time: u128, network: Rc<RefCell<NeuralNetwork<N>>>) {
+    let network_clone_outer = Rc::clone(&network);
+    let nn = network_clone_outer.borrow();
 
     // Outer loop (layers)
-    for (layer_index, layer) in nn.layers.iter_mut().enumerate() {
+    for (layer_index, layer) in nn.layers.iter().enumerate() {
         // Inner loop (neurons)
-        for (neuron_index, neuron) in layer.neurons.iter_mut().enumerate() {
-            let handle = thread::spawn(move || {
-                // Lock the cloned network inside the thread
-                call_handle_spike(neuron, time, neuron_index, layer_index, net);
-            });
-            handles.push(handle);
+        for (neuron_index, neuron) in layer.neurons.iter().enumerate() {
+            let network_clone_inner = Rc::clone(&network);
+            let nn = network_clone_inner.borrow();
+            call_handle_spike(neuron, time, neuron_index, layer_index, &nn);
         }
     }
-
-    // Wait for all threads to finish
-    for handle in handles {
-        handle.join().unwrap();
-    }
 }
+
+
 
 

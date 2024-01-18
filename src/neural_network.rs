@@ -2,6 +2,7 @@
 use crate::lif_neuron::Neuron;
 use crate::neural_layer::NeuralLayer;
 
+use std::sync::{Mutex, Arc};
 
 #[derive(Clone)]
 pub struct NeuralNetwork<N: Neuron> {

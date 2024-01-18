@@ -1,5 +1,6 @@
 // neural_layer.rs
 use crate::lif_neuron::Neuron;
+use std::sync::{Mutex, Arc};
 /* use rand::{Rng, thread_rng};
 
 fn generate_random_vector(n: usize, min: f64, max: f64) -> Vec<f64> {
