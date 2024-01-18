@@ -7,7 +7,7 @@ const THRESHOLD: f64 = 2.5;
 const TAU: f64 = 1.0;
 
 pub trait Neuron: 'static + Clone {
-    type ClassNeuron: 'static + Sized + Clone + Sync;
+    type ClassNeuron: 'static + Sized + Clone + Sync + Send;
 
     fn put_sum(&mut self, value: f64);
     fn handle_spike(&mut self, current_spike_time: u128) -> u128;

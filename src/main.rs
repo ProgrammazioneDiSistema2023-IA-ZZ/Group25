@@ -82,25 +82,25 @@ fn main() {
 
     let layer_sizes = vec![2,2,2];
     let num_layers = 3;
-    let network = Rc::new(RefCell::new(NeuralNetwork::new(layer_sizes, input_weights, intra_weights, neuron_params)));
+    let network = Arc::new(Mutex::new(NeuralNetwork::new(layer_sizes, input_weights, intra_weights, neuron_params)));
     let spikes = create_spike();
     let sorted_spike_array_for_nn = Spike::get_all_spikes(spikes.clone());
     let max_value = *sorted_spike_array_for_nn
     .iter()
     .max()
-    .expect("max not existing") + num_layers;
+    .unwrap() + num_layers;
     let mut time = 0;
-
 
     while time < max_value {
         // Incrementa il contatore
         time += 1;
 
         if sorted_spike_array_for_nn.contains(&time) {
-            action_spike(spikes.clone(), time, Rc::clone(&network));
+            action_spike(spikes.clone(), time, Arc::clone(&network));
+            println!("action_spike");
             
             //ciclo sui neuroni per calcolo soglia
-            update_neurons(time, Rc::clone(&network))
+            update_neurons(time, Arc::clone(&network))
         }
     }
 
@@ -115,13 +115,13 @@ fn main() {
 fn create_spike() -> Vec<Vec<Spike>>{
     
     let spikes_neuron_1 = [1, 5, 7].to_vec();
-    let spike_vec_for_neuron_1 = Spike::create_spike_vec(1, 1, spikes_neuron_1);
+    let spike_vec_for_neuron_1 = Spike::create_spike_vec(0,0, spikes_neuron_1);
      
     //let spikes_neuron_2 = [10, 2, 4].to_vec();
     //let spike_vec_for_neuron_2 = Spike::create_spike_vec(2, 1, spikes_neuron_2);
 
     let spikes_neuron_3 = [1, 3, 5, 10].to_vec();
-    let spike_vec_for_neuron_3 = Spike::create_spike_vec(2, 1, spikes_neuron_3);
+    let spike_vec_for_neuron_3 = Spike::create_spike_vec(1, 0, spikes_neuron_3);
      
     let mut spikes = Vec::new();
     spikes.push(spike_vec_for_neuron_1);
