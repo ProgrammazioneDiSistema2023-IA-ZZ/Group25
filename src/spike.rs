@@ -124,8 +124,6 @@ pub fn action_spike<N: Neuron>(spikes: Vec<Vec<Spike>>, time: u128, network: Rc<
                     println!("Failed to get mutable reference to neuron.");
                     println!("Time: {}", time);
                 }
-
-                // Lock is automatically released when `nn` goes out of scope
             }
             None => {
                 println!("Spike con tempo {} non trovato.", time);
@@ -162,6 +160,7 @@ pub fn propagate_spike<N: Neuron + 'static>(spike: &mut Spike, network: &NeuralN
 
 pub fn call_handle_spike<N: Neuron + 'static>(neuron: &N, time: u128, neuron_id: usize, layer_id: usize, network: &NeuralNetwork<N>) {
     let mut n = neuron.clone();
+    println!("Analisi neurone {}-{}", neuron_id, layer_id);
     let result = n.handle_spike(time);
     match result {
         1 => {
@@ -169,7 +168,7 @@ pub fn call_handle_spike<N: Neuron + 'static>(neuron: &N, time: u128, neuron_id:
             let mut spike = Spike::new(time, neuron_id, layer_id);
             propagate_spike(&mut spike, &network.clone());
         }
-        _ => {}
+        _ => {println!("Neurone {}-{} NON ha sparato al tempo {}", neuron_id, layer_id, time);}
     }
 }
 

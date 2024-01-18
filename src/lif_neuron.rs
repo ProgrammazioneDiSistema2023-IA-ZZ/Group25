@@ -104,16 +104,26 @@ impl Neuron for LIFNeuron {
         // This early exit serves as a small optimization
         if self.sum == 0.0 { return 0 }
         
+        println!("last spike time: {:.3}", self.last_spike_time);
         let delta_t = (current_spike_time - self.last_spike_time)as f64;
+        println!("delta_t: {:.3}", delta_t);
         self.last_spike_time = current_spike_time;
 
         // compute the new v_mem value
-        self.membrane_potential = self.resting_potential + (self.membrane_potential - self.resting_potential) * (-delta_t / self.tau).exp() + self.sum;
+        println!("Potenziale prima: {:.3}", self.membrane_potential);
+        let expo = (-delta_t / self.tau).exp();
+        println!("expo: {:.3}", expo);
+        let intermediate = (self.membrane_potential - self.resting_potential) * expo;
+        println!("mult+exp: {:.3}", intermediate);
+        self.membrane_potential = self.resting_potential + intermediate + self.sum;
+        println!("Potenziale dopo: {:.3}", self.membrane_potential);
         self.sum = 0.0;
         if self.membrane_potential > self.threshold {
             self.membrane_potential = self.reset_potential;
+            println!("Potenziale dopo threshold: {:.3}", self.membrane_potential);
             1
         } else {
+            println!("------------------> Potenziale dopo threshold: {:.3}", self.membrane_potential);
             0
         }
     }
