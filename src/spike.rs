@@ -92,7 +92,7 @@ impl Spike {
 }
 
 
-fn contains_time<'a>(spike_vec: &'a [Spike], time: u128) -> Option<&'a Spike> {
+pub fn contains_time<'a>(spike_vec: &'a [Spike], time: u128) -> Option<&'a Spike> {
     for spike in spike_vec.iter() {
         if spike.spike_time == time {
             return Some(spike);
