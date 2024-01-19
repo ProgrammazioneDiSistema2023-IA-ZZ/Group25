@@ -1,10 +1,12 @@
 // tests/test.rs
 
-use crate::lif_neuron::LIFNeuron;
+use crate::lif_neuron::{LIFNeuron};
 use crate::neural_layer::NeuralLayer;
 use crate ::neural_network::NeuralNetwork;
 use crate::spike::Spike;
-
+use crate::errors::{stuck_at_x,bit_flip};
+use crate::simulation_error::{SimulationError, ErrorType};
+use std;
 const RESET_POTENTIAL: f64 = 0.7;
 const RESTING_POTENTIAL: f64 = 2.0;
 const THRESHOLD: f64 = 2.5;
@@ -189,13 +191,48 @@ fn test_neural_network_configuration_2() {
         assert_eq!(result, vec![1, 2, 3, 4, 5, 6]);
     }
 
+    // #[test]
+    // fn test_stuck_at_x() {
+    //     // Test case 1: Set a specific bit to 1
+    //     let value = 42.0;
+    //     let index = 63;
+    //     let new_bit = 1;
 
-// #[test]
-// fn test_neural_network_propagation() {
-//     // ... test di propagazione degli impulsi nella rete ...
-// }
+    //     let result = stuck_at_x(value, index, new_bit);
+    //     assert_eq!(result, -42.0); // 42.0 + 0.125
 
-// #[test]
-// fn test_neural_network_training() {
-//     // ... test di addestramento della rete ...
-// }
+    //     // // Test case 2: Set a specific bit to 0
+    //     // let value = -12.0;
+    //     // let index = 0;
+    //     // let new_bit = 0;
+
+    //     // let result = stuck_at_x(value, index, new_bit);
+    //     // assert_eq!(result, 42.0 - f64::powi(2.0, 0)); // 42.0 - 0.25
+
+    //     // Test case 2: Index out of bounds (no modification should occur)
+    //     let value = 42.0;
+    //     let index = 64;
+    //     let new_bit = 1;
+
+    //     let result = stuck_at_x(value, index, new_bit);
+    //     assert_eq!(result, 42.0); // Value should remain unchanged
+    // }
+
+    #[test]
+    fn test_simulating_errors() {
+        // Input values for testing
+        let components = vec!["weights", "potentials"];
+        let error_type = "stuck-at-0";
+        let occurrences = 100;
+
+        // Create a simulation error instance
+        let simulation_error = SimulationError::new(components.clone(), error_type, &occurrences);
+
+        // Verify that the fields are set correctly
+        assert_eq!(simulation_error.components, components);
+        assert_eq!(simulation_error.error_type, ErrorType::StuckAt0);
+        assert_eq!(simulation_error.occurrences, occurrences);
+
+        // Print error info
+        simulation_error.print_info();
+    }
