@@ -5,6 +5,11 @@ use std::io::{self, BufRead};
 use std::path::Path;
 
 mod lif_neuron;
+mod errors;
+mod simulation_error;
+use crate::errors::{stuck_at_0,stuck_at_1,bit_flip};
+use crate::simulation_error::ErrorType; 
+
 pub mod neural_layer;
 use crate::lif_neuron::Neuron;
 // Importa il modulo neuron
@@ -108,6 +113,12 @@ fn main() {
     }
 
     println!("Condizione raggiunta dopo {} iterazioni", time);
+
+    //introduzione degli errori, proviamo a modificare un peso del layer 1 
+    let error_type = ErrorType::StuckAt1; // Sostituisci con il tipo di errore desiderato 
+    network.get_layer_mut(1).unwrap().modify_weights_layer(&error_type); 
+    network.get_layer_mut(1).unwrap().print_input_weights(); 
+    network.get_layer_mut(1).unwrap().print_intra_weights();
 }
 
 

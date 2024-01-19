@@ -6,65 +6,85 @@ const RESTING_POTENTIAL: f64 = 2.0;
 const THRESHOLD: f64 = 2.5;
 const TAU: f64 = 1.0;
 
-pub trait Neuron: 'static + Clone + Send + Sync {
-    type ClassNeuron: 'static + Sized + Clone + Sync + Send;
-
-    fn handle_spike(&mut self, sum: f64, current_spike_time: u128) -> u128;
-    fn adjust_weight(&mut self, input: f64);
-}
-
-
-#[derive(Clone, Copy, Debug)]
-pub struct LIFNeuron {
-    pub membrane_potential: f64,
-    pub reset_potential: f64,
-    pub resting_potential: f64,
-    pub threshold: f64,
-    pub tau: f64,
-    pub last_spike_time: u128
-}
-
-impl LIFNeuron {
-    pub fn new(
-        reset_potential: f64,
-        resting_potential: f64,
-        threshold: f64,
-        tau: f64
-    ) -> Self {
-        Self {
-            membrane_potential: resting_potential,
-            reset_potential,
-            resting_potential,
-            threshold,
-            tau,
-            last_spike_time : 0
-        }
-    }
-
-    // Metodo per creare una nuova istanza con valori di default
-    pub fn default() -> Self {
-        LIFNeuron {
-            membrane_potential: RESTING_POTENTIAL,
-            reset_potential: RESET_POTENTIAL,
-            resting_potential: RESTING_POTENTIAL,
-            threshold: THRESHOLD,
-            tau: TAU,
-            last_spike_time : 0
-        }
-    }
-
-
-    pub fn default_random() -> Self {
-        let mut rng = rand::thread_rng();
-    
-        LIFNeuron {
-            membrane_potential: RESTING_POTENTIAL + rng.gen_range(-0.5..0.5),
-            reset_potential: RESET_POTENTIAL + rng.gen_range(-0.5..0.5),
-            resting_potential: RESTING_POTENTIAL + rng.gen_range(-0.5..0.5),
-            threshold: THRESHOLD + rng.gen_range(-0.5..0.5),
-            tau: TAU + rng.gen_range(-0.5..0.5),
-            last_spike_time: 0
-        }
+pub trait Neuron: 'static + Clone + Send { 
+    type ClassNeuron: 'static + Sized + Clone + Sync + Send; 
+ 
+    fn handle_spike(&mut self, sum: f64, current_spike_time: u128) -> u128; 
+    fn adjust_weight (&mut self, input: f64);
+} 
+ 
+#[derive(Clone, Copy, Debug)] 
+pub struct Error { //struttura gestione errore 
+    pub flag: bool, 
+    pub error_type: u8, 
+    pub index: u8, 
+} 
+ 
+#[derive(Clone, Copy, Debug)] 
+pub struct LIFNeuron { 
+    pub membrane_potential: f64, 
+    pub reset_potential: f64, 
+    pub resting_potential: f64, 
+    pub threshold: f64, 
+    pub tau: f64, 
+    pub last_spike_time: u128, 
+    pub error: Error, 
+} 
+ 
+impl LIFNeuron { 
+    pub fn new( 
+        reset_potential: f64, 
+        resting_potential: f64, 
+        threshold: f64, 
+        tau: f64, 
+    ) -> Self { 
+        Self { 
+            membrane_potential: resting_potential, 
+            reset_potential, 
+            resting_potential, 
+            threshold, 
+            tau, 
+            last_spike_time: 0, 
+            error: Error { 
+                flag: false, 
+                error_type: 0, 
+                index: 0, 
+            }, 
+        } 
+    } 
+ 
+    pub fn default() -> Self { 
+        LIFNeuron { 
+            membrane_potential: RESTING_POTENTIAL, 
+            reset_potential: RESET_POTENTIAL, 
+            resting_potential: RESTING_POTENTIAL, 
+            threshold: THRESHOLD, 
+            tau: TAU, 
+            last_spike_time: 0, 
+            error: Error { 
+                flag: false, 
+                error_type: 0, 
+                index: 0, 
+            }, 
+        } 
+    } 
+ 
+    pub fn default_random() -> Self { 
+        let mut rng = rand::thread_rng(); 
+ 
+        LIFNeuron { 
+            membrane_potential: RESTING_POTENTIAL + rng.gen_range(-0.5..0.5), 
+            reset_potential: RESET_POTENTIAL + rng.gen_range(-0.5..0.5), 
+            resting_potential: RESTING_POTENTIAL + rng.gen_range(-0.5..0.5), 
+            threshold: THRESHOLD + rng.gen_range(-0.5..0.5), 
+            tau: TAU + rng.gen_range(-0.5..0.5), 
+            last_spike_time: 0, 
+            error: Error { 
+                flag: false, 
+                error_type: 0, 
+                index: 0, 
+            }, 
+        } 
     }
 
     
@@ -91,13 +111,20 @@ impl LIFNeuron {
         println!("Tau:");
         let tau: f64 = Self::read_user_input();
 
+        //Inserire errori(?)
+
         LIFNeuron {
             membrane_potential: resting_potential,
             reset_potential,
             resting_potential,
             threshold,
             tau,
-            last_spike_time : 0
+            last_spike_time : 0,
+            error: Error { 
+                flag: false, 
+                error_type: 0, 
+                index: 0, 
+            }, 
         }
     }
 

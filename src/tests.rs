@@ -1,6 +1,6 @@
 // tests/test.rs
 
-use crate::lif_neuron::{LIFNeuron};
+use crate::lif_neuron::LIFNeuron;
 use crate::neural_layer::NeuralLayer;
 use crate ::neural_network::NeuralNetwork;
 use crate::spike::Spike;
