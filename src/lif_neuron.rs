@@ -6,11 +6,11 @@ const RESTING_POTENTIAL: f64 = 2.0;
 const THRESHOLD: f64 = 2.5;
 const TAU: f64 = 1.0;
 
-pub trait Neuron: 'static + Clone + Send {
+pub trait Neuron: 'static + Clone + Send + Sync {
     type ClassNeuron: 'static + Sized + Clone + Sync + Send;
 
     fn handle_spike(&mut self, sum: f64, current_spike_time: u128) -> u128;
-    //fn put_sum(sum: f64, value: f64);
+    fn adjust_weight(&mut self, input: f64);
 }
 
 
@@ -110,19 +110,19 @@ impl Neuron for LIFNeuron {
         // This early exit serves as a small optimization
         if sum == 0.0 { return 0 }
         
-        println!("last spike time: {:.3}", self.last_spike_time);
+        //println!("last spike time: {:.3}", self.last_spike_time);
         let delta_t = (current_spike_time - self.last_spike_time)as f64;
-        println!("delta_t: {:.3}", delta_t);
+        //println!("delta_t: {:.3}", delta_t);
         self.last_spike_time = current_spike_time;
 
         // compute the new v_mem value
-        println!("Potenziale prima: {:.3}", self.membrane_potential);
+        //println!("Potenziale prima: {:.3}", self.membrane_potential);
         let expo = (-delta_t / self.tau).exp();
         //println!("expo: {:.3}", expo);
         let intermediate = (self.membrane_potential - self.resting_potential) * expo;
         //println!("mult+exp: {:.3}", intermediate);
         self.membrane_potential = self.resting_potential + intermediate + sum;
-        println!("Potenziale dopo: {:.3}", self.membrane_potential);
+        //println!("Potenziale dopo: {:.3}", self.membrane_potential);
         sum = 0.0;
         if self.membrane_potential > self.threshold {
             self.membrane_potential = self.reset_potential;
@@ -134,8 +134,7 @@ impl Neuron for LIFNeuron {
         }
     }
 
-    /* 
-    fn put_sum(mut sum: f64, value: f64) {
-        sum += value;
-    } */
+    fn adjust_weight (&mut self, input: f64){
+        self.membrane_potential =  self.membrane_potential + input;
+    }
 }

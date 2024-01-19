@@ -43,7 +43,7 @@ fn main() {
     let intra_weights = read_matrix_from_file(intra_weights_file).expect("Errore durante la lettura del file di intra_weights");
 
  */
-    let neuron_params = LIFNeuron::default_random();
+    let neuron_params = LIFNeuron::default();
 
     // Leggi le matrici di pesi da file
    // Configura la rete neurale
@@ -90,7 +90,7 @@ fn main() {
     let max_value = *sorted_spike_array_for_nn
     .iter()
     .max()
-    .unwrap() + num_layers as u128;
+    .unwrap();
     let mut time = 0;
     while time < max_value {
         // Incrementa il contatore
@@ -101,9 +101,10 @@ fn main() {
             s = action_spike(spikes.clone(), time);
         }
         //ciclo sui neuroni per calcolo soglia
-        println!("PRE------------------> {:?}", s);
-        s = network.update_neurons(time, s, num_layers);
-        println!("POST-----------------> {:?}", s);
+        println!("TIME----------------------> {:?}", time);
+        println!("PRE----> {:?}", s);
+        s = network.update_neurons_parallel(time, s, num_layers);
+        println!("POST----> {:?}", s);
     }
 
     println!("Condizione raggiunta dopo {} iterazioni", time);
@@ -122,7 +123,7 @@ fn create_spike() -> Vec<Vec<Spike>>{
     //let spikes_neuron_2 = [10, 2, 4].to_vec();
     //let spike_vec_for_neuron_2 = Spike::create_spike_vec(2, 1, spikes_neuron_2);
 
-    let spikes_neuron_3 = [1, 3, 5, 10].to_vec();
+    let spikes_neuron_3 = [2, 3, 5, 10].to_vec();
     let spike_vec_for_neuron_3 = Spike::create_spike_vec(1, 0, spikes_neuron_3);
      
     let mut spikes = Vec::new();
