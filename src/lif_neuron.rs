@@ -1,6 +1,6 @@
 // lif_neuron.rs
 use std::io;
-
+use rand::Rng;
 const RESET_POTENTIAL: f64 = 0.7;
 const RESTING_POTENTIAL: f64 = 2.0;
 const THRESHOLD: f64 = 2.5;
@@ -50,6 +50,21 @@ impl LIFNeuron {
             threshold: THRESHOLD,
             tau: TAU,
             last_spike_time : 0
+        }
+    }
+
+
+    pub fn default_random() -> Self {
+        let mut rng = rand::thread_rng();
+    
+        LIFNeuron {
+            membrane_potential: RESTING_POTENTIAL + rng.gen_range(-0.5..0.5),
+            reset_potential: RESET_POTENTIAL + rng.gen_range(-0.5..0.5),
+            resting_potential: RESTING_POTENTIAL + rng.gen_range(-0.5..0.5),
+            threshold: THRESHOLD + rng.gen_range(-0.5..0.5),
+            tau: TAU + rng.gen_range(-0.5..0.5),
+            last_spike_time: 0,
+            sum: 0.0,
         }
     }
 
