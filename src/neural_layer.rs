@@ -70,19 +70,11 @@ impl<N: Neuron> NeuralLayer<N> {
         self.neurons.clone()
     }
 
-    pub fn get_intra_weight_value<'a>(&'a self, from: usize, to: usize) -> Option<&f64> {
-        if let Some(row) = self.intra_weights.get(from) {
-            row.get(to)
-        } else {
-            None
-        }
+    pub fn get_intra_weight_value(&self, from: usize, to: usize) -> &f64 {
+        self.intra_weights.get(from).unwrap().get(to).unwrap()
     }
 
-    pub fn get_input_weight_value<'a>(&'a self, from: usize, to: usize) -> Option<&f64> {
-        if let Some(row) = self.input_weights.get(from) {
-            row.get(to)
-        } else {
-            None
-        }
+    pub fn get_input_weight_value(&self, from: usize, to: usize) -> &f64 {
+        self.input_weights.get(from).unwrap().get(to).unwrap()
     }
 }
