@@ -47,7 +47,7 @@ fn main() {
     let intra_weights = read_matrix_from_file(intra_weights_file).expect("Errore durante la lettura del file di intra_weights");
 
  */
-    let neuron_params = LIFNeuron::default();
+    let neuron_params = LIFNeuron::default_random();
 
     // Leggi le matrici di pesi da file
    // Configura la rete neurale
