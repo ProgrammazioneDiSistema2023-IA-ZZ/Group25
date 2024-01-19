@@ -40,8 +40,8 @@ impl<N: Neuron> NeuralLayer<N> {
     }
      */
 
-     pub fn new(layer_size: usize, input_weights: Vec<Vec<f64>>, intra_weights: Vec<Vec<f64>>, neuron: N) -> NeuralLayer<N> {
-        let neurons = vec![neuron; layer_size];
+     pub fn new(layer_size: usize, input_weights: Vec<Vec<f64>>, intra_weights: Vec<Vec<f64>>, mut neuron: N) -> NeuralLayer<N> {
+        let mut neurons = vec![neuron; layer_size];
 
         NeuralLayer {
             neurons,

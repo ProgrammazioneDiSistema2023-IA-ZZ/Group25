@@ -1,16 +1,12 @@
 // File: main.rs
-use std::sync::{Mutex, Arc};
-use std::thread;
-
-use std::rc::Rc;
-use std::cell::RefCell;
 
 use std::fs::File;
 use std::io::{self, BufRead};
 use std::path::Path;
 
 mod lif_neuron;
-pub mod neural_layer; use crate::spike::update_neurons;
+pub mod neural_layer;
+use crate::lif_neuron::Neuron;
 // Importa il modulo neuron
 use crate::{lif_neuron::LIFNeuron, spike::action_spike};
 
@@ -47,7 +43,7 @@ fn main() {
     let intra_weights = read_matrix_from_file(intra_weights_file).expect("Errore durante la lettura del file di intra_weights");
 
  */
-    let neuron_params = LIFNeuron::default();
+    let mut neuron_params = LIFNeuron::new(0.7, 2.0, 2.5,1.0);
 
     // Leggi le matrici di pesi da file
    // Configura la rete neurale
@@ -81,25 +77,33 @@ fn main() {
     ];
 
     let layer_sizes = vec![2,2,2];
-    let num_layers = 3;
-    let network = Rc::new(RefCell::new(NeuralNetwork::new(layer_sizes, input_weights, intra_weights, neuron_params)));
+    let num_layers: usize = 3;
+    let mut network = NeuralNetwork::new(layer_sizes, input_weights, intra_weights, neuron_params);
+
+    /* println!("inizio");
+    network.get_layer_mut(0).unwrap().get_neuron_mut(0).unwrap().handle_spike(5.0, 0);
+    network.get_layer_mut(0).unwrap().get_neuron_mut(0).unwrap().handle_spike(5.0, 0);
+    println!("fine");
+ */
     let spikes = create_spike();
     let sorted_spike_array_for_nn = Spike::get_all_spikes(spikes.clone());
     let max_value = *sorted_spike_array_for_nn
     .iter()
     .max()
-    .unwrap() + num_layers;
+    .unwrap() + num_layers as u128;
     let mut time = 0;
-
     while time < max_value {
         // Incrementa il contatore
         time += 1;
+        let mut s= vec![0.0, 0.0];
 
         if sorted_spike_array_for_nn.contains(&time) {
-            action_spike(spikes.clone(), time, Rc::clone(&network));
+            s = action_spike(spikes.clone(), time);
         }
         //ciclo sui neuroni per calcolo soglia
-        update_neurons(time, Rc::clone(&network))
+        println!("PRE------------------> {:?}", s);
+        s = network.update_neurons(time, s, num_layers);
+        println!("POST-----------------> {:?}", s);
     }
 
     println!("Condizione raggiunta dopo {} iterazioni", time);

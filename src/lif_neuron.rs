@@ -6,11 +6,11 @@ const RESTING_POTENTIAL: f64 = 2.0;
 const THRESHOLD: f64 = 2.5;
 const TAU: f64 = 1.0;
 
-pub trait Neuron: 'static + Clone {
+pub trait Neuron: 'static + Clone + Send {
     type ClassNeuron: 'static + Sized + Clone + Sync + Send;
 
-    fn put_sum(&mut self, value: f64);
-    fn handle_spike(&mut self, current_spike_time: u128) -> u128;
+    fn handle_spike(&mut self, sum: f64, current_spike_time: u128) -> u128;
+    //fn put_sum(sum: f64, value: f64);
 }
 
 
@@ -21,12 +21,11 @@ pub struct LIFNeuron {
     pub resting_potential: f64,
     pub threshold: f64,
     pub tau: f64,
-    pub last_spike_time: u128,
-    pub sum: f64
+    pub last_spike_time: u128
 }
 
 impl LIFNeuron {
-    /* pub fn new(
+    pub fn new(
         reset_potential: f64,
         resting_potential: f64,
         threshold: f64,
@@ -38,10 +37,9 @@ impl LIFNeuron {
             resting_potential,
             threshold,
             tau,
-            last_spike_time : 0,
-            sum: 0.0
+            last_spike_time : 0
         }
-    } */
+    }
 
     // Metodo per creare una nuova istanza con valori di default
     pub fn default() -> Self {
@@ -51,8 +49,7 @@ impl LIFNeuron {
             resting_potential: RESTING_POTENTIAL,
             threshold: THRESHOLD,
             tau: TAU,
-            last_spike_time : 0,
-            sum: 0.0
+            last_spike_time : 0
         }
     }
 
@@ -86,23 +83,18 @@ impl LIFNeuron {
             resting_potential,
             threshold,
             tau,
-            last_spike_time : 0,
-            sum: 0.0
+            last_spike_time : 0
         }
     }
+
 }
 
 impl Neuron for LIFNeuron {
     type ClassNeuron = LIFNeuron;
 
-    // Metodo per aggiungere un valore a sum
-    fn put_sum(&mut self, value: f64) {
-        self.sum += value;
-    }
-
-    fn handle_spike(&mut self, current_spike_time: u128) -> u128 {
+    fn handle_spike(&mut self, mut sum: f64, current_spike_time: u128) -> u128 {
         // This early exit serves as a small optimization
-        if self.sum == 0.0 { return 0 }
+        if sum == 0.0 { return 0 }
         
         println!("last spike time: {:.3}", self.last_spike_time);
         let delta_t = (current_spike_time - self.last_spike_time)as f64;
@@ -112,19 +104,24 @@ impl Neuron for LIFNeuron {
         // compute the new v_mem value
         println!("Potenziale prima: {:.3}", self.membrane_potential);
         let expo = (-delta_t / self.tau).exp();
-        println!("expo: {:.3}", expo);
+        //println!("expo: {:.3}", expo);
         let intermediate = (self.membrane_potential - self.resting_potential) * expo;
-        println!("mult+exp: {:.3}", intermediate);
-        self.membrane_potential = self.resting_potential + intermediate + self.sum;
+        //println!("mult+exp: {:.3}", intermediate);
+        self.membrane_potential = self.resting_potential + intermediate + sum;
         println!("Potenziale dopo: {:.3}", self.membrane_potential);
-        self.sum = 0.0;
+        sum = 0.0;
         if self.membrane_potential > self.threshold {
             self.membrane_potential = self.reset_potential;
-            println!("Potenziale dopo threshold: {:.3}", self.membrane_potential);
+            //println!("Potenziale dopo threshold: {:.3}", self.membrane_potential);
             1
         } else {
-            println!("------------------> Potenziale dopo threshold: {:.3}", self.membrane_potential);
+            //println!("------------------> Potenziale dopo threshold: {:.3}", self.membrane_potential);
             0
         }
     }
+
+    /* 
+    fn put_sum(mut sum: f64, value: f64) {
+        sum += value;
+    } */
 }
