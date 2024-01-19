@@ -63,8 +63,7 @@ impl LIFNeuron {
             resting_potential: RESTING_POTENTIAL + rng.gen_range(-0.5..0.5),
             threshold: THRESHOLD + rng.gen_range(-0.5..0.5),
             tau: TAU + rng.gen_range(-0.5..0.5),
-            last_spike_time: 0,
-            sum: 0.0,
+            last_spike_time: 0
         }
     }
 
