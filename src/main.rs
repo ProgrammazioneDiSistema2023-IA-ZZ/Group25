@@ -1,7 +1,8 @@
 // File: main.rs
 
+use std::fs;
 use std::fs::File;
-use std::io::{self, BufRead};
+use std::io::{self, BufRead, Write};
 use std::path::Path;
 
 mod lif_neuron;
@@ -27,7 +28,7 @@ mod tests;
 fn main() {
     // Configura il neurone di partenza
     // Chiedi all'utente se vuole inserire i valori del neurone
-    /* println!("Vuoi inserire i valori del neurone manualmente? (y/n)");
+    println!("Vuoi inserire i valori del neurone manualmente? (y/n)");
 
     let mut manual_input = String::new();
     io::stdin().read_line(&mut manual_input).expect("Errore durante la lettura dell'input");
@@ -41,17 +42,18 @@ fn main() {
     }
 
     // Configura la rete neurale
-    let input_weights_file = "src/input_weights.txt";
-    let intra_weights_file = "src/intra_weights.txt";
+    let input_weights_file = "input_weights_222.txt";
+    let intra_weights_file = "intra_weights_222.txt";
 
-    let input_weights = read_matrix_from_file(input_weights_file).expect("Errore durante la lettura del file di input_weights");
-    let intra_weights = read_matrix_from_file(intra_weights_file).expect("Errore durante la lettura del file di intra_weights");
+    let input_weights = read_matrix_file(input_weights_file).expect("Errore durante la lettura del file di input_weights");
+    let intra_weights = read_matrix_file(intra_weights_file).expect("Errore durante la lettura del file di intra_weights");
 
- */
-    let neuron_params = LIFNeuron::default();
+    println!("{:?}", input_weights); 
+    println!("{:?}", intra_weights); 
 
     // Leggi le matrici di pesi da file
    // Configura la rete neurale
+   /* let neuron_params= LIFNeuron::default();
    let input_weights: Vec<Vec<Vec<f64>>> = 
    vec![
         vec![
@@ -79,8 +81,7 @@ fn main() {
             vec![0.00, -0.24],
             vec![-0.84, 0.00]
             ]
-    ];
-
+    ]; */
     let layer_sizes = vec![2,2,2];
     let num_layers: usize = 3;
     let mut network = NeuralNetwork::new(layer_sizes, input_weights, intra_weights, neuron_params);
@@ -141,73 +142,47 @@ fn create_spike() -> Vec<Vec<Spike>>{
     let spikes_neuron_1 = [1, 5, 7].to_vec();
     let spike_vec_for_neuron_1 = Spike::create_spike_vec(0,0, spikes_neuron_1);
      
-    //let spikes_neuron_2 = [10, 2, 4].to_vec();
-    //let spike_vec_for_neuron_2 = Spike::create_spike_vec(2, 1, spikes_neuron_2);
+    let spikes_neuron_2 = [10, 2, 4].to_vec();
+    let spike_vec_for_neuron_2 = Spike::create_spike_vec(1, 0, spikes_neuron_2);
 
     let spikes_neuron_3 = [2, 3, 5, 10].to_vec();
-    let spike_vec_for_neuron_3 = Spike::create_spike_vec(1, 0, spikes_neuron_3);
+    let spike_vec_for_neuron_3 = Spike::create_spike_vec(2, 0, spikes_neuron_3);
      
     let mut spikes = Vec::new();
     spikes.push(spike_vec_for_neuron_1);
-    //spikes.push(spike_vec_for_neuron_2);
+    spikes.push(spike_vec_for_neuron_2);
     spikes.push(spike_vec_for_neuron_3);
     
     spikes
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-fn read_matrix_from_file(file_path: &str) -> io::Result<Vec<Vec<Vec<f64>>>> {
-    let file = File::open(file_path)?;
+fn read_matrix_file(file_path: &str) -> Result<Vec<Vec<Vec<f64>>>, io::Error> {
+    let file = File::open(file_path).expect("File non trovato");
     let reader = io::BufReader::new(file);
 
-    let mut matrix = Vec::new();
+    let mut result: Vec<Vec<Vec<f64>>> = Vec::new();
+    let mut current_matrix: Vec<Vec<f64>> = Vec::new();
 
     for line in reader.lines() {
-        let row: Vec<Vec<f64>> = line?
-            .split_whitespace()
-            .map(|s| {
-                s.split(',')
-                    .filter_map(|num| num.parse().ok())
-                    .collect()
-            })
+        let line = line?;
+        let values: Vec<f64> = line
+            .split(',')
+            .filter_map(|s| s.trim().parse().ok())
             .collect();
-        matrix.push(row);
-    }
 
-    Ok(matrix)
-}
-    /* match network.get_layer(0) {
-        Some(layer) => {
-            // Estrarre il valore dal layer e chiamare get_input_weight_value
-            let value = layer.get_intra_weight_value(0, 0);
-            let value2 = layer.get_intra_weight_value(1, 2);
-            let value3 = layer.get_input_weight_value(1, 1);
-            let value4 = layer.get_input_weight_value(2, 2);
-            // Fai qualcosa con il valore ottenuto
-            println!("{:?} {:?} {:?} {:?}", value, value2, value3, value4);
-        },
-        None => {
-            // Gestisci il caso in cui get_layer restituisce None
-            println!("Layer non trovato");
+        if values.is_empty() {
+            // Empty line, end of matrix
+            result.push(current_matrix);
+            current_matrix = Vec::new();
+        } else {
+            current_matrix.push(values);
         }
     }
- */
+
+    // Push the last matrix if there is any
+    if !current_matrix.is_empty() {
+        result.push(current_matrix);
+    }
+
+    Ok(result)
+}
