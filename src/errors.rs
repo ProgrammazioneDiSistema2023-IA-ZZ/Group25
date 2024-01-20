@@ -42,7 +42,7 @@ pub fn stuck_at_x(value: &mut f64, index: usize, new_bit: u8) -> Option<usize> {
 pub fn stuck_at_0(original_value: &mut f64) -> Option<usize> {
     // Generate a random bit index to toggle (0 to 63)
     let bit_index_to_toggle = rand::thread_rng().gen_range(0..64);
-
+    println!("valore {:.14} all'indice {}", original_value, bit_index_to_toggle);
     // Toggle the bit using the byte array with the value 1
     stuck_at_x(original_value, bit_index_to_toggle, 0)
 }
@@ -58,6 +58,7 @@ pub fn stuck_at_1(original_value: &mut f64) -> Option<usize> {
 pub fn bit_flip(value: &mut f64) -> Option<usize> {
     // Generate a random bit index to toggle (0 to 63)
     let index = rand::thread_rng().gen_range(0..64);
+    println!("valore {:.14} all'indice {}", value, index);
 
     // Toggle the bit using the byte array with the value 1
     stuck_at_x(value, index, 1)

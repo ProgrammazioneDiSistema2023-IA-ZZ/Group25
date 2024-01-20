@@ -117,6 +117,8 @@ fn main() {
     //introduzione degli errori, proviamo a modificare un peso del layer 1 
     let error_type = ErrorType::StuckAt1; // Sostituisci con il tipo di errore desiderato 
     let component = Component::Tau;
+    let error_type_2 = ErrorType::StuckAt0;
+    let component_2 = Component::Threshold ;
     //prova sui pesi
     // network.get_layer_mut(1).unwrap().modify_weights_layer(&error_type); 
     // network.get_layer_mut(1).unwrap().print_input_weights(); 
@@ -126,6 +128,7 @@ fn main() {
     println!("test compo neurone");
     network.get_layer_mut(1).unwrap().get_neuron_mut(0).unwrap().print_neuron_parameters();
     network.get_layer_mut(1).unwrap().get_neuron_mut(0).unwrap().modify_parameters_neuron(component, &error_type);
+    network.get_layer_mut(1).unwrap().get_neuron_mut(0).unwrap().modify_parameters_neuron(component_2, &error_type_2);
     network.get_layer_mut(1).unwrap().get_neuron_mut(0).unwrap().print_neuron_parameters();
 
 

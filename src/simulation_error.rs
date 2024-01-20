@@ -16,7 +16,9 @@ pub enum ErrorType {
 }
 
 // Enum per rappresentare i tipi di componenti
-#[derive(Debug)]
+
+
+#[derive(Clone, Copy, Debug, PartialEq)]
 pub enum Component {
     Threshold,
     ResetPotential,
