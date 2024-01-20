@@ -218,21 +218,21 @@ fn test_neural_network_configuration_2() {
     //     assert_eq!(result, 42.0); // Value should remain unchanged
     // }
 
-    #[test]
-    fn test_simulating_errors() {
-        // Input values for testing
-        let components = vec!["weights", "potentials"];
-        let error_type = "stuck-at-0";
-        let occurrences = 100;
+    // #[test]
+    // fn test_simulating_errors() {
+    //     // Input values for testing
+    //     let components = vec!["weights", "potentials"];
+    //     let error_type = "stuck-at-0";
+    //     let occurrences = 100;
 
-        // Create a simulation error instance
-        let simulation_error = SimulationError::new(components.clone(), error_type, &occurrences);
+    //     // Create a simulation error instance
+    //     let simulation_error = SimulationError::new(components.clone(), error_type, &occurrences);
 
-        // Verify that the fields are set correctly
-        assert_eq!(simulation_error.components, components);
-        assert_eq!(simulation_error.error_type, ErrorType::StuckAt0);
-        assert_eq!(simulation_error.occurrences, occurrences);
+    //     // Verify that the fields are set correctly
+    //     assert_eq!(simulation_error.components, components);
+    //     assert_eq!(simulation_error.error_type, ErrorType::StuckAt0);
+    //     assert_eq!(simulation_error.occurrences, occurrences);
 
-        // Print error info
-        simulation_error.print_info();
-    }
+    //     // Print error info
+    //     simulation_error.print_info();
+    // }

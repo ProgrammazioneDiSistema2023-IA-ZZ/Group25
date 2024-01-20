@@ -8,7 +8,7 @@ mod lif_neuron;
 mod errors;
 mod simulation_error;
 use crate::errors::{stuck_at_0,stuck_at_1,bit_flip};
-use crate::simulation_error::ErrorType; 
+use crate::simulation_error::{ErrorType, Component}; 
 
 pub mod neural_layer;
 use crate::lif_neuron::Neuron;
@@ -116,9 +116,19 @@ fn main() {
 
     //introduzione degli errori, proviamo a modificare un peso del layer 1 
     let error_type = ErrorType::StuckAt1; // Sostituisci con il tipo di errore desiderato 
-    network.get_layer_mut(1).unwrap().modify_weights_layer(&error_type); 
-    network.get_layer_mut(1).unwrap().print_input_weights(); 
-    network.get_layer_mut(1).unwrap().print_intra_weights();
+    let component = Component::Tau;
+    //prova sui pesi
+    // network.get_layer_mut(1).unwrap().modify_weights_layer(&error_type); 
+    // network.get_layer_mut(1).unwrap().print_input_weights(); 
+    // network.get_layer_mut(1).unwrap().print_intra_weights();
+
+    //prova sulle component del neurone
+    println!("test compo neurone");
+    network.get_layer_mut(1).unwrap().get_neuron_mut(0).unwrap().print_neuron_parameters();
+    network.get_layer_mut(1).unwrap().get_neuron_mut(0).unwrap().modify_parameters_neuron(component, &error_type);
+    network.get_layer_mut(1).unwrap().get_neuron_mut(0).unwrap().print_neuron_parameters();
+
+
 }
 
 
