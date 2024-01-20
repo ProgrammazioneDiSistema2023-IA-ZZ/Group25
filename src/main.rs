@@ -56,10 +56,11 @@ fn main() {
     //Creazione rete neurale
     let layer_sizes = vec![2,2,2];
     let num_layers: usize = 3;
-    let mut network = NeuralNetwork::new(layer_sizes, input_weights, intra_weights, neuron_params);
+    let mut network = NeuralNetwork::new(layer_sizes.clone(), input_weights, intra_weights, neuron_params);
 
     // Leggi le spike da file
-    let spike_file = "data/spike2.txt";
+    let spike_file = generate_spike_file(layer_sizes[0]);
+    //let spike_file = "data/spike2.txt";
     let spikes = create_spike(spike_file);
 
     let sorted_spike_array_for_nn = Spike::get_all_spikes(spikes.clone());
@@ -245,4 +246,23 @@ fn error_menu() {
         .collect();
 
     SimulationError::new(components, error_choice, iterazioni);
+}
+
+pub fn generate_spike_file(n: usize) -> &'static str {
+    // Apre o crea il file "output.txt"
+    let file_path = "spike.txt";
+    let mut file = File::create(file_path).expect("Errore durante la creazione del file");
+
+    for i in 0..n {
+        // Richiede all'utente di inserire la riga di numeri
+        println!("Inserisci la riga di numeri separati da virgole (Treno di spike #{}):", i+1);
+        let mut input_line = String::new();
+        io::stdin().read_line(&mut input_line).expect("Errore durante la lettura dell'input");
+
+        // Scrive la riga nel file
+        write!(file, "{}", input_line.trim()).expect("Errore durante la scrittura nel file");
+        write!(file, ";\n").expect("Errore durante la scrittura nel file");
+    }
+
+    file_path
 }
