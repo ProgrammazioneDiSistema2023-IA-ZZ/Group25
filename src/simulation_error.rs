@@ -6,6 +6,8 @@ pub struct SimulationError {
     pub components: Vec<String>,
     pub error_type: ErrorType,
     pub occurrences: usize,
+    pub output: Vec<Vec<u64>>,
+    pub output_errors: Vec<Vec<u64>>,
 }
 
 #[derive(Debug, PartialEq, Clone, Copy)]
@@ -15,9 +17,6 @@ pub enum ErrorType {
     BitFlip,
 }
 
-// Enum per rappresentare i tipi di componenti
-
-
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub enum Component {
     Threshold,
@@ -25,6 +24,7 @@ pub enum Component {
     RestingPotential,
     MembranePotential,
     Tau,
+    Weights,
 }
 
 impl fmt::Display for Component {
@@ -35,7 +35,7 @@ impl fmt::Display for Component {
 
 impl SimulationError {
     pub fn new(components: Vec<Component>, error_type: &str, occurrences: usize) -> Self {
-        let components = components.iter().map(|c| c.to_string()).collect();
+        let components = components.into_iter().map(|c| c.to_string()).collect();
         let error_type = match error_type.to_lowercase().as_str() {
             "stuck-at-0" => ErrorType::StuckAt0,
             "stuck-at-1" => ErrorType::StuckAt1,
@@ -43,10 +43,13 @@ impl SimulationError {
             _ => panic!("Invalid error type"),
         };
 
+        let output_errors = vec![vec![0u64; 64]; occurrences]; //da rivedere
         Self {
             components,
             error_type,
             occurrences,
+            output: Vec::new(),
+            output_errors,
         }
     }
 
@@ -57,34 +60,54 @@ impl SimulationError {
         for component in &self.components {
             println!("  - {}", component);
         }
+    
+        // Stampa il contenuto di self.output
+        println!("Output:");
+        for row in &self.output {
+            println!("  {:?}", row);
+        }
+    
+        // Stampa il contenuto di self.output_errors
+        println!("Output Errors:");
+        for row in &self.output_errors {
+            println!("  {:?}", row);
+        }
     }
+    
 
     pub fn string_to_component(nome: &str) -> Option<Component> {
-        match nome {
-            "Threshold" => Some(Component::Threshold),
-            "ResetPotential" => Some(Component::ResetPotential),
-            "RestingPotential" => Some(Component::RestingPotential),
-            "MembranePotential" => Some(Component::MembranePotential),
-            "Tau" => Some(Component::Tau),
+        match nome.to_lowercase().as_str() {
+            "threshold" => Some(Component::Threshold),
+            "resetpotential" => Some(Component::ResetPotential),
+            "restingpotential" => Some(Component::RestingPotential),
+            "membranepotential" => Some(Component::MembranePotential),
+            "tau" => Some(Component::Tau),
+            "weights" => Some(Component::Weights),
             _ => None,
         }
     }
+    
 }
 
-#[test]
-fn main() {
-    // Creazione di una lista di componenti
-    let components_list = vec![
-        Component::Threshold,
-        Component::ResetPotential,
-        Component::RestingPotential,
-        Component::MembranePotential,
-        Component::Tau,
-    ];
+#[cfg(test)]
+mod tests {
+    use super::*;
 
-    // Creazione di un'istanza di SimulationError
-    let simulation_error = SimulationError::new(components_list, "bit-flip", 3);
+    #[test]
+    fn test_simulation_error() {
+        let components_list = vec![
+            Component::Threshold,
+            Component::ResetPotential,
+            Component::RestingPotential,
+            Component::MembranePotential,
+            Component::Tau,
+            Component::Weights,
+        ];
 
-    // Stampa a scopo di debug
-    simulation_error.print_info();
+        let simulation_error = SimulationError::new(components_list, "bit-flip", 3);
+
+        assert_eq!(simulation_error.occurrences, 3);
+        assert_eq!(simulation_error.error_type, ErrorType::BitFlip);
+        assert_eq!(simulation_error.components.len(), 6);
+    }
 }
