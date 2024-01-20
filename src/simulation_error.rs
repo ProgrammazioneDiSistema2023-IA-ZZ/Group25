@@ -58,6 +58,17 @@ impl SimulationError {
             println!("  - {}", component);
         }
     }
+
+    pub fn string_to_component(nome: &str) -> Option<Component> {
+        match nome {
+            "Threshold" => Some(Component::Threshold),
+            "ResetPotential" => Some(Component::ResetPotential),
+            "RestingPotential" => Some(Component::RestingPotential),
+            "MembranePotential" => Some(Component::MembranePotential),
+            "Tau" => Some(Component::Tau),
+            _ => None,
+        }
+    }
 }
 
 #[test]

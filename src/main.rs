@@ -1,15 +1,16 @@
 // File: main.rs
 
-use std::fs;
+use std::{fs, error};
 use std::fs::File;
 use std::io::{self, BufRead, Write};
 use std::path::Path;
+use std::process::Output;
 
 mod lif_neuron;
 mod errors;
 mod simulation_error;
 use crate::errors::{stuck_at_0,stuck_at_1,bit_flip};
-use crate::simulation_error::{ErrorType, Component}; 
+use crate::simulation_error::{ErrorType, Component, SimulationError}; 
 
 pub mod neural_layer;
 use crate::lif_neuron::Neuron;
@@ -28,6 +29,7 @@ mod tests;
 fn main() {
     // Configura il neurone di partenza
     // Chiedi all'utente se vuole inserire i valori del neurone
+    println!("Benvenuto in Brain Training!");
     println!("Vuoi inserire i valori del neurone manualmente? (y/n)");
 
     let mut manual_input = String::new();
@@ -41,9 +43,9 @@ fn main() {
         neuron_params = LIFNeuron::default();
     }
 
-    // Configura la rete neurale
-    let input_weights_file = "input_weights_222.txt";
-    let intra_weights_file = "intra_weights_222.txt";
+    // Leggi le matrici di pesi da file
+    let input_weights_file = "data/input_weights_222.txt";
+    let intra_weights_file = "data/intra_weights_222.txt";
 
     let input_weights = read_matrix_file(input_weights_file).expect("Errore durante la lettura del file di input_weights");
     let intra_weights = read_matrix_file(intra_weights_file).expect("Errore durante la lettura del file di intra_weights");
@@ -51,53 +53,24 @@ fn main() {
     println!("{:?}", input_weights); 
     println!("{:?}", intra_weights); 
 
-    // Leggi le matrici di pesi da file
-   // Configura la rete neurale
-   /* let neuron_params= LIFNeuron::default();
-   let input_weights: Vec<Vec<Vec<f64>>> = 
-   vec![
-        vec![
-            vec![1.0, 0.0], 
-            vec![0.0, 1.0]],
-        vec![
-            vec![4.05, 0.03], 
-            vec![2.24, 1.79]],
-        vec![
-            vec![0.54, 3.09], 
-            vec![2.70, 0.93]]
-    ];
-
-    let intra_weights: Vec<Vec<Vec<f64>>> = 
-    vec![
-        vec![
-            vec![0.00, -1.23], 
-            vec![-1.70, 0.00]
-            ],
-        vec![
-            vec![0.00, -0.87],
-            vec![-0.50, 0.00],
-            ],
-        vec![
-            vec![0.00, -0.24],
-            vec![-0.84, 0.00]
-            ]
-    ]; */
+    //Creazione rete neurale
     let layer_sizes = vec![2,2,2];
     let num_layers: usize = 3;
     let mut network = NeuralNetwork::new(layer_sizes, input_weights, intra_weights, neuron_params);
 
-    /* println!("inizio");
-    network.get_layer_mut(0).unwrap().get_neuron_mut(0).unwrap().handle_spike(5.0, 0);
-    network.get_layer_mut(0).unwrap().get_neuron_mut(0).unwrap().handle_spike(5.0, 0);
-    println!("fine");
- */
-    let spikes = create_spike();
+    // Leggi le spike da file
+    let spike_file = "data/spike2.txt";
+    let spikes = create_spike(spike_file);
+
     let sorted_spike_array_for_nn = Spike::get_all_spikes(spikes.clone());
     let max_value = *sorted_spike_array_for_nn
     .iter()
     .max()
     .unwrap();
     let mut time = 0;
+
+
+    let mut output = Vec::new();
     while time < max_value {
         // Incrementa il contatore
         time += 1;
@@ -110,9 +83,11 @@ fn main() {
         println!("TIME----------------------> {:?}", time);
         println!("PRE----> {:?}", s);
         s = network.update_neurons_parallel(time, s, num_layers);
+        output.push(s.clone());
         println!("POST----> {:?}", s);
     }
 
+    println!("OUTPUT: {:?}", output);
     println!("Condizione raggiunta dopo {} iterazioni", time);
 
     //introduzione degli errori, proviamo a modificare un peso del layer 1 
@@ -133,31 +108,33 @@ fn main() {
     network.get_layer_mut(1).unwrap().get_neuron_mut(0).unwrap().print_neuron_parameters();
 
 
+    error_menu();
 }
 
+fn create_spike(file_path: &str) -> Vec<Vec<Spike>> {
+    // Open the file
+    let file = File::open(file_path).expect("File non trovato");
+    let reader = io::BufReader::new(file);
 
-/* fn check_empty_spike_vec(sorted_spike_array_for_nn: Vec<u128>) -> bool {
-    sorted_spike_array_for_nn.is_empty()
-} */
+    // Read lines and parse into Vec<Vec<usize>>
+    let result: Vec<Vec<u128>> = reader.lines()
+        .filter_map(|line| line.ok())
+        .map(|line| {
+            line.split(';')
+                .flat_map(|part| part.split(','))
+                .filter_map(|num| num.trim().parse().ok())
+                .collect()
+        })
+        .collect();
 
-fn create_spike() -> Vec<Vec<Spike>>{
-    
-    let spikes_neuron_1 = [1, 5, 7].to_vec();
-    let spike_vec_for_neuron_1 = Spike::create_spike_vec(0,0, spikes_neuron_1);
-     
-    let spikes_neuron_2 = [10, 2, 4].to_vec();
-    let spike_vec_for_neuron_2 = Spike::create_spike_vec(1, 0, spikes_neuron_2);
+    // Call Spike::create_spike_vec for each Vec<usize>
+    let spikes: Vec<Vec<Spike>> = result.into_iter().enumerate().map(|(idx, vec)| {
+        Spike::create_spike_vec(idx, 0, vec)
+    }).collect();
 
-    let spikes_neuron_3 = [2, 3, 5, 10].to_vec();
-    let spike_vec_for_neuron_3 = Spike::create_spike_vec(2, 0, spikes_neuron_3);
-     
-    let mut spikes = Vec::new();
-    spikes.push(spike_vec_for_neuron_1);
-    spikes.push(spike_vec_for_neuron_2);
-    spikes.push(spike_vec_for_neuron_3);
-    
     spikes
 }
+
 
 fn read_matrix_file(file_path: &str) -> Result<Vec<Vec<Vec<f64>>>, io::Error> {
     let file = File::open(file_path).expect("File non trovato");
@@ -188,4 +165,84 @@ fn read_matrix_file(file_path: &str) -> Result<Vec<Vec<Vec<f64>>>, io::Error> {
     }
 
     Ok(result)
+}
+
+fn error_menu() {
+    // Lista di nomi
+    let errors = vec!["stuck-at-0", "stuck-at-1", "bit-flip"];
+    let positions = vec!["Threshold", "ResetPotential","RestingPotential","MembranePotential","Tau"];
+    
+    // Chiedere all'utente il numero di iterazioni
+    println!("Inserisci il numero di iterazioni:");
+    let mut input_iterazioni = String::new();
+    io::stdin().read_line(&mut input_iterazioni).expect("Errore durante la lettura dell'input");
+    let iterazioni: usize = input_iterazioni.trim().parse().expect("Inserisci un numero valido");
+
+    // Stampare la lista di errori
+    println!("Lista di errori disponibili:");
+    for (idx, error) in errors.iter().enumerate() {
+        println!("{}: {}", idx + 1, error);
+    }
+
+    let error_choice;
+    loop{
+    // Chiedere all'utente di scegliere un valore dalla lista di errori
+    println!("Scegli un valore dalla lista (inserisci il numero corrispondente):");
+    let mut input_choice = String::new();
+    io::stdin().read_line(&mut input_choice).expect("Errore durante la lettura dell'input");
+    let choice: usize = input_choice.trim().parse().expect("Inserisci un numero valido");
+
+    // Verificare se la scelta è valida
+    
+    if choice >= 1 && choice <= errors.len() {
+        error_choice = errors[choice - 1];
+        println!("Scelto: {}", error_choice);
+        break;
+    } else {
+        println!("Scelta non valida. Riprova.");
+        continue;
+    }
+}
+    // Stampare la lista di posizioni
+    println!("Lista di errori disponibili:");
+    for (idx, position) in positions.iter().enumerate() {
+        println!("{}: {}", idx + 1, position);
+    }
+    
+    let mut position_choices = Vec::new();
+    loop {
+    println!("Scegli un valore dalla lista (inserisci il numero corrispondente, inserisci 0 per terminare):");
+        let mut input_choice = String::new();
+        io::stdin().read_line(&mut input_choice).expect("Errore durante la lettura dell'input");
+
+        // Converte l'input in un numero
+        let choice: usize = match input_choice.trim().parse() {
+            Ok(num) => num,
+            Err(_) => {
+                println!("Inserisci un numero valido.");
+                continue;
+            }
+        };
+
+        // Verifica se l'utente ha inserito 0 per terminare
+        if choice == 0 {
+            break;
+        }
+
+        // Verifica se la scelta è valida e pusha la scelta nel vettore
+        if choice >= 1 && choice <= positions.len() {
+            let position_choice = positions[choice - 1];
+            println!("Scelto: {}", position_choice);
+            position_choices.push(position_choice);
+        } else {
+            println!("Scelta non valida. Riprova.");
+        }
+    }
+
+    let components: Vec<Component> = position_choices
+        .iter()
+        .filter_map(|&nome|  SimulationError::string_to_component(nome))
+        .collect();
+
+    SimulationError::new(components, error_choice, iterazioni);
 }
