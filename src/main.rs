@@ -104,8 +104,8 @@ fn main() {
     //prova sulle component del neurone
     println!("test compo neurone");
     network.get_layer_mut(1).unwrap().get_neuron_mut(0).unwrap().print_neuron_parameters();
-    network.get_layer_mut(1).unwrap().get_neuron_mut(0).unwrap().modify_parameters_neuron(component, &error_type);
-    network.get_layer_mut(1).unwrap().get_neuron_mut(0).unwrap().modify_parameters_neuron(component_2, &error_type_2);
+    //network.get_layer_mut(1).unwrap().get_neuron_mut(0).unwrap().modify_parameters_neuron(component, &error_type);
+    //network.get_layer_mut(1).unwrap().get_neuron_mut(0).unwrap().modify_parameters_neuron(component_2, &error_type_2);
     network.get_layer_mut(1).unwrap().get_neuron_mut(0).unwrap().print_neuron_parameters();
 
 
@@ -175,10 +175,10 @@ fn error_menu() {
     let positions = vec!["Threshold", "ResetPotential","RestingPotential","MembranePotential","Tau"];
     
     // Chiedere all'utente il numero di iterazioni
-    println!("Inserisci il numero di iterazioni:");
-    let mut input_iterazioni = String::new();
-    io::stdin().read_line(&mut input_iterazioni).expect("Errore durante la lettura dell'input");
-    let iterazioni: usize = input_iterazioni.trim().parse().expect("Inserisci un numero valido");
+    println!("Inserisci il numero di occorrenze:");
+    let mut num_occurrences = String::new();
+    io::stdin().read_line(&mut num_occurrences).expect("Errore durante la lettura dell'input");
+    let iterazioni: usize = num_occurrences.trim().parse().expect("Inserisci un numero valido");
 
     // Stampare la lista di errori
     println!("Lista di errori disponibili:");
@@ -264,7 +264,8 @@ fn error_menu() {
     let spike_file = "data/spike2.txt";
     let spikes = create_spike(spike_file);
 
-    simulation.run_simulation(layer_sizes,num_layers, input_weights, intra_weights,neuron_params, spikes);
+    
+    simulation.run_simulation_wrapper(layer_sizes,num_layers, input_weights, intra_weights,neuron_params, spikes);
     simulation.print_info();
 
 }

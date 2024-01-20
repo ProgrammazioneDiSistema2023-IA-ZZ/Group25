@@ -12,12 +12,13 @@ const RESTING_POTENTIAL: f64 = 2.0;
 const THRESHOLD: f64 = 2.5;
 const TAU: f64 = 1.0;
 
-pub trait Neuron: 'static + Clone + Send {
+pub trait Neuron: 'static + Clone + Send + ModifyNeuron {
     type ClassNeuron: 'static + Sized + Clone + Sync + Send;
 
     fn handle_spike(&mut self, sum: f64, current_spike_time: u128) -> u128;
     fn adjust_weight(&mut self, input: f64);
 }
+
 
 #[derive(Clone, Copy, Debug)]
 pub struct Error {
@@ -138,42 +139,7 @@ impl LIFNeuron {
     }
 
 
-    pub fn modify_parameters_neuron(&mut self, component: Component, error_type: &ErrorType) {
-        
-        // Verifica se l'errore è già presente nella lista
-        if !Self::is_error_already_present(&self.errors, error_type, component) {
-            println!("nuovo errore");
-        let mut index: Option<usize> = None;
-        match component {
-            Component::Threshold => {
-                index = modify_weight_based_on_error(&mut self.threshold, error_type);
-            }
-            Component::ResetPotential => {
-                index = modify_weight_based_on_error(&mut self.reset_potential, error_type);
-            }
-            Component::RestingPotential => {
-                index = modify_weight_based_on_error(&mut self.resting_potential, error_type);
-            }
-            Component::MembranePotential => {
-                index = modify_weight_based_on_error(&mut self.membrane_potential, error_type);
-            }
-            Component::Tau => {
-                index = modify_weight_based_on_error(&mut self.tau, error_type);
-            }
-            _ => {},
-        }
-        //LIFNeuron::modify_error(&mut self.errors[0], error_type, index, Some(component));
-        if *error_type != ErrorType::BitFlip {
-            self.errors.push(Error {
-            flag: true,
-            error_type: *error_type,
-            index: index,
-            component: Some(component),
-        });
-        }}
-    }
-
-    pub fn print_neuron_parameters(&self) {
+  pub fn print_neuron_parameters(&self) {
         println!("Neuron Parameters:");
         println!("Membrane Potential: {:.14}", self.membrane_potential);
         println!("Reset Potential: {:.14}", self.reset_potential);
@@ -221,4 +187,48 @@ impl Neuron for LIFNeuron {
     fn adjust_weight(&mut self, input: f64) {
         self.membrane_potential = self.membrane_potential + input;
     }
+    
+}
+
+pub trait ModifyNeuron {
+    fn modify_parameters_neuron(&mut self, component: Component, error_type: &ErrorType);
+}
+
+impl ModifyNeuron for LIFNeuron{
+    fn modify_parameters_neuron(&mut self, component: Component, error_type: &ErrorType) {
+        
+        // Verifica se l'errore è già presente nella lista
+        if !Self::is_error_already_present(&self.errors, error_type, component) {
+            println!("nuovo errore");
+        let mut index: Option<usize> = None;
+        match component {
+            Component::Threshold => {
+                index = modify_weight_based_on_error(&mut self.threshold, error_type);
+            }
+            Component::ResetPotential => {
+                index = modify_weight_based_on_error(&mut self.reset_potential, error_type);
+            }
+            Component::RestingPotential => {
+                index = modify_weight_based_on_error(&mut self.resting_potential, error_type);
+            }
+            Component::MembranePotential => {
+                index = modify_weight_based_on_error(&mut self.membrane_potential, error_type);
+            }
+            Component::Tau => {
+                index = modify_weight_based_on_error(&mut self.tau, error_type);
+            }
+            _ => {},
+        }
+        //LIFNeuron::modify_error(&mut self.errors[0], error_type, index, Some(component));
+        if *error_type != ErrorType::BitFlip {
+            self.errors.push(Error {
+            flag: true,
+            error_type: *error_type,
+            index: index,
+            component: Some(component),
+        });
+        }}
+    }
+
+    
 }

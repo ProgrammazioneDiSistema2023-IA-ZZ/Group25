@@ -1,4 +1,8 @@
 
+use rand::Rng;
+
+use crate::Component;
+use crate::ErrorType;
 use crate::lif_neuron::Neuron;
 use crate::neural_layer::NeuralLayer;
 
@@ -168,6 +172,30 @@ impl<N: Neuron> NeuralNetwork<N> {
         return layer_spikes;
     }
 
+    pub fn apply_error(&mut self, components: Vec<Component>, error_type: ErrorType) {
+        let mut rng = rand::thread_rng();
+        let num_layers = self.layers.len();
+
+        match components[0] {
+            Component::Weights => {
+                // Scelta casuale di un layer per i pesi
+                let layer_index = rng.gen_range(0..num_layers);
+                //let neuron_index = rng.gen_range(0..self.layers[layer_index].num_neurons());
+                self.get_layer_mut(layer_index).unwrap().modify_weights_layer(&error_type);
+                
+            }
+            _ => {
+                // Scelta casuale di un layer e un neurone per gli altri componenti
+                let layer_index = rng.gen_range(0..num_layers);
+                let neuron_index = rng.gen_range(0..self.layers[layer_index].num_neurons());
+                self.get_neuron_mut(layer_index, neuron_index).unwrap().modify_parameters_neuron(components[0], &error_type);
+                //self.get_layer_mut(layer_index).unwrap().get_neuron_mut(neuron_index).unwrap().modify_parameters_neuron(component, &error_type);
+            }
+        }
+    }
+
+
+    
 /* 
     pub fn update_neurons(&mut self, time_step: u128, spike_input: Vec<f64>, num_layers: usize) -> Vec<f64> {
         let mut layer_spikes = Vec::new();
