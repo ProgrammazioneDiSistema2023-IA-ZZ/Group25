@@ -160,15 +160,17 @@ impl LIFNeuron {
             Component::Tau => {
                 index = modify_weight_based_on_error(&mut self.tau, error_type);
             }
+            _ => {},
         }
         //LIFNeuron::modify_error(&mut self.errors[0], error_type, index, Some(component));
-        self.errors.push(Error {
+        if *error_type != ErrorType::BitFlip {
+            self.errors.push(Error {
             flag: true,
             error_type: *error_type,
             index: index,
             component: Some(component),
         });
-        }
+        }}
     }
 
     pub fn print_neuron_parameters(&self) {

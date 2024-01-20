@@ -168,6 +168,7 @@ fn read_matrix_file(file_path: &str) -> Result<Vec<Vec<Vec<f64>>>, io::Error> {
     Ok(result)
 }
 
+
 fn error_menu() {
     // Lista di nomi
     let errors = vec!["stuck-at-0", "stuck-at-1", "bit-flip"];
@@ -245,7 +246,9 @@ fn error_menu() {
         .filter_map(|&nome|  SimulationError::string_to_component(nome))
         .collect();
 
-    SimulationError::new(components, error_choice, iterazioni);
+    let mut simulation = SimulationError::new(components, error_choice, iterazioni);
+    simulation.print_info();
+
 }
 
 pub fn generate_spike_file(n: usize) -> &'static str {
