@@ -1,12 +1,16 @@
 use std::collections::HashMap;
 use std::fmt;
 
+use crate::LIFNeuron;
+use crate::neural_network::NeuralNetwork;
+use crate::spike::{Spike, action_spike};
+
 #[derive(Debug)]
 pub struct SimulationError {
     pub components: Vec<String>,
     pub error_type: ErrorType,
     pub occurrences: usize,
-    pub output: Vec<Vec<u64>>,
+    pub output: Vec<Vec<f64>>,
     pub output_errors: Vec<Vec<u64>>,
 }
 
@@ -86,7 +90,44 @@ impl SimulationError {
             _ => None,
         }
     }
-    
+
+    pub fn run_simulation(
+        &mut self,
+        layer_sizes: Vec<usize>,
+        num_layers: usize,
+        input_weights: Vec<Vec<Vec<f64>>>,
+        intra_weights: Vec<Vec<Vec<f64>>>,
+        neuron_params: LIFNeuron,
+        spikes: Vec<Vec<Spike>>,
+    ) {
+        // Creazione rete neurale
+        let mut network = NeuralNetwork::new(layer_sizes, input_weights, intra_weights, neuron_params);
+
+        let sorted_spike_array_for_nn = Spike::get_all_spikes(spikes.clone());
+        let max_value = *sorted_spike_array_for_nn.iter().max().unwrap();
+        let mut time = 0;
+
+        while time < max_value {
+            // Incrementa il contatore
+            time += 1;
+            let mut s = vec![0.0, 0.0];
+
+            if sorted_spike_array_for_nn.contains(&time) {
+                s = action_spike(spikes.clone(), time);
+            }
+            
+            // Ciclo sui neuroni per calcolo soglia
+            println!("TIME----------------------> {:?}", time);
+            println!("PRE----> {:?}", s);
+            s = network.update_neurons_parallel(time, s, num_layers);
+            self.output.push(s.clone());
+            println!("POST----> {:?}", s);
+        }
+
+        println!("OUTPUT: {:?}", self.output);
+        println!("Condizione raggiunta dopo {} iterazioni", time);
+    }
+
 }
 
 #[cfg(test)]

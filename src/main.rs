@@ -10,7 +10,7 @@ mod lif_neuron;
 mod errors;
 mod simulation_error;
 use crate::errors::{stuck_at_0,stuck_at_1,bit_flip};
-use crate::simulation_error::{ErrorType, Component, SimulationError}; 
+use crate::simulation_error::*; 
 
 pub mod neural_layer;
 use crate::lif_neuron::Neuron;
@@ -246,6 +246,24 @@ fn error_menu() {
         .collect();
 
     let mut simulation = SimulationError::new(components, error_choice, iterazioni);
+    
+    let input_weights_file = "data/input_weights_222.txt";
+    let intra_weights_file = "data/intra_weights_222.txt";
+
+    let input_weights = read_matrix_file(input_weights_file).expect("Errore durante la lettura del file di input_weights");
+    let intra_weights = read_matrix_file(intra_weights_file).expect("Errore durante la lettura del file di intra_weights");
+
+   
+
+    //Creazione rete neurale
+    let layer_sizes = vec![2,2,2];
+    let num_layers: usize = 3;
+    let neuron_params = LIFNeuron::default();
+    // Leggi le spike da file
+    let spike_file = "data/spike2.txt";
+    let spikes = create_spike(spike_file);
+
+    simulation.run_simulation(layer_sizes,num_layers, input_weights, intra_weights,neuron_params, spikes);
     simulation.print_info();
 
 }
