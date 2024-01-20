@@ -19,15 +19,16 @@ pub trait Neuron: 'static + Clone + Send {
     fn adjust_weight(&mut self, input: f64);
 }
 
-#[derive(Clone,Copy, Debug)]
+#[derive(Clone, Copy, Debug)]
 pub struct Error {
     // struttura gestione errore
     pub flag: bool,
     pub error_type: ErrorType,
     pub index: Option<usize>,
+    pub component: Option<Component>,  // Aggiunto campo Component
 }
 
-#[derive(Clone, Copy, Debug)]
+#[derive(Clone, Debug)]
 pub struct LIFNeuron {
     pub membrane_potential: f64,
     pub reset_potential: f64,
@@ -35,7 +36,7 @@ pub struct LIFNeuron {
     pub threshold: f64,
     pub tau: f64,
     pub last_spike_time: u128,
-    pub error: Error,
+    pub errors: Vec<Error>,  // Cambiato nome da error a errors e usato Vec<Error>
 }
 
 impl LIFNeuron {
@@ -47,11 +48,8 @@ impl LIFNeuron {
             threshold,
             tau,
             last_spike_time: 0,
-            error: Error {
-                flag: false,
-                error_type: ErrorType::StuckAt0, // Inizializza con un valore di default
-                index: None,
-            },
+            errors: Vec::new(),
+
         }
     }
 
@@ -63,11 +61,8 @@ impl LIFNeuron {
             threshold: THRESHOLD,
             tau: TAU,
             last_spike_time: 0,
-            error: Error {
-                flag: false,
-                error_type: ErrorType::StuckAt0, // Inizializza con un valore di default
-                index: None,
-            },
+            errors: Vec::new(),
+
         }
     }
 
@@ -81,11 +76,8 @@ impl LIFNeuron {
             threshold: THRESHOLD + rng.gen_range(-0.5..0.5),
             tau: TAU + rng.gen_range(-0.5..0.5),
             last_spike_time: 0,
-            error: Error {
-                flag: false,
-                error_type: ErrorType::StuckAt0, // Inizializza con un valore di default
-                index: None,
-            },
+            errors: Vec::new(),
+
         }
     }
 
@@ -123,31 +115,34 @@ impl LIFNeuron {
             threshold,
             tau,
             last_spike_time: 0,
-            error: Error {
-                flag: false,
-                error_type: ErrorType::StuckAt0, // Inizializza con un valore di default
-                index: None,
-            },
+            errors: Vec::new(),
         }
     }
 
     // Funzione per ottenere un riferimento mutabile alla struttura Error
-    pub fn get_error_mut(&mut self) -> &mut Error {
-        &mut self.error
+    pub fn get_error_mut(&mut self) -> &mut Vec<Error> {
+        &mut self.errors
     }
-    //gestione errori
-        //gestione errori
 
     // Funzione per modificare la struttura Error
-    pub fn modify_error(error: &mut Error, error_type: &ErrorType, index: Option<usize>) {
+    pub fn modify_error(error: &mut Error, error_type: &ErrorType, index: Option<usize>, component: Option<Component>) {
         error.flag = true;
         error.error_type = *error_type;
         error.index = index;
+        error.component = component;
     }
-   
-   
+
+    // Funzione per verificare se un errore è già presente nella lista degli errori
+    fn is_error_already_present(errors: &[Error], error_type: &ErrorType, component: Component) -> bool {
+        errors.iter().any(|err| err.error_type == *error_type && err.component == Some(component))
+    }
+
 
     pub fn modify_parameters_neuron(&mut self, component: Component, error_type: &ErrorType) {
+        
+        // Verifica se l'errore è già presente nella lista
+        if !Self::is_error_already_present(&self.errors, error_type, component) {
+            println!("nuovo errore");
         let mut index: Option<usize> = None;
         match component {
             Component::Threshold => {
@@ -166,7 +161,14 @@ impl LIFNeuron {
                 index = modify_weight_based_on_error(&mut self.tau, error_type);
             }
         }
-        LIFNeuron::modify_error( &mut self.error, error_type, index);
+        //LIFNeuron::modify_error(&mut self.errors[0], error_type, index, Some(component));
+        self.errors.push(Error {
+            flag: true,
+            error_type: *error_type,
+            index: index,
+            component: Some(component),
+        });
+        }
     }
 
     pub fn print_neuron_parameters(&self) {
@@ -177,7 +179,7 @@ impl LIFNeuron {
         println!("Threshold: {:.14}", self.threshold);
         println!("Tau: {:.14}", self.tau);
         println!("Last Spike Time: {}", self.last_spike_time);
-        println!("Error: {:?}", self.error);
+        println!("Errors: {:?}", self.errors);
     }
 }
 
@@ -218,5 +220,3 @@ impl Neuron for LIFNeuron {
         self.membrane_potential = self.membrane_potential + input;
     }
 }
-
- 
