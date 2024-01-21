@@ -154,36 +154,30 @@ impl LIFNeuron {
 impl Neuron for LIFNeuron {
     type ClassNeuron = LIFNeuron;
 
-    fn handle_spike(&mut self, mut sum: f64, current_spike_time: u128) -> u128 {
-        // This early exit serves as a small optimization
+    fn handle_spike(&mut self, sum: f64, current_spike_time: u128) -> u128 {
+        // Questo if implementa l'event-based condition
         if sum == 0.0 {
             return 0;
         }
 
-        //println!("last spike time: {:.3}", self.last_spike_time);
         let delta_t = (current_spike_time - self.last_spike_time) as f64;
-        //println!("delta_t: {:.3}", delta_t);
         self.last_spike_time = current_spike_time;
 
-        // compute the new v_mem value
-        //println!("Potenziale prima: {:.3}", self.membrane_potential);
+        // Calcola il nuovo potenziale di membrana
         let expo = (-delta_t / self.tau).exp();
-        //println!("expo: {:.3}", expo);
         let intermediate = (self.membrane_potential - self.resting_potential) * expo;
-        //println!("mult+exp: {:.3}", intermediate);
         self.membrane_potential = self.resting_potential + intermediate + sum;
-        //println!("Potenziale dopo: {:.3}", self.membrane_potential);
-        sum = 0.0;
+
+        // Comparatore di soglia
         if self.membrane_potential > self.threshold {
             self.membrane_potential = self.reset_potential;
-            //println!("Potenziale dopo threshold: {:.3}", self.membrane_potential);
             1
         } else {
-            //println!("------------------> Potenziale dopo threshold: {:.3}", self.membrane_potential);
             0
         }
     }
 
+    //prepara il neurone a ricevere il prossimo impulso (aggiornamento peso intra)
     fn adjust_weight(&mut self, input: f64) {
         self.membrane_potential = self.membrane_potential + input;
     }
@@ -200,7 +194,6 @@ impl ModifyNeuron for LIFNeuron{
         
         // Verifica se l'errore è già presente nella lista
         if !Self::is_error_already_present(&self.errors, error_type, component) {
-            println!("nuovo errore");
         let mut index: Option<usize> = None;
         match component {
             Component::Threshold => {

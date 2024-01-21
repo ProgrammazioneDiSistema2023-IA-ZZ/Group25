@@ -1,11 +1,3 @@
-use std::sync::{Mutex, Arc, MutexGuard};
-use std::thread;
-
-
-use std::rc::Rc;
-use std::cell::RefCell;
-
-use crate::{neural_network::NeuralNetwork, lif_neuron::Neuron};
 
 #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Debug)]
 pub struct Spike {
@@ -113,7 +105,7 @@ pub fn action_spike(spikes: Vec<Vec<Spike>>, time: u128) -> Vec<f64>{
     let mut v = vec![];
     for riga in spikes.iter() {
         match contains_time(&riga, time) {
-            Some(spike) => {
+            Some(_) => {
                 v.push(1.0);
             }
             None => {

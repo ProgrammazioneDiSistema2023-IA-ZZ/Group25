@@ -1,19 +1,14 @@
 // File: main.rs
 
-use std::{fs, error};
 use std::fs::File;
 use std::io::{self, BufRead, Write};
-use std::path::Path;
-use std::process::Output;
 
 mod lif_neuron;
 mod errors;
 mod simulation_error;
-use crate::errors::{stuck_at_0,stuck_at_1,bit_flip};
 use crate::simulation_error::*; 
 
 pub mod neural_layer;
-use crate::lif_neuron::Neuron;
 // Importa il modulo neuron
 use crate::{lif_neuron::LIFNeuron, spike::action_spike};
 
@@ -29,6 +24,7 @@ mod tests;
 fn main() {
     // Configura il neurone di partenza
     // Chiedi all'utente se vuole inserire i valori del neurone
+    println!("\n");
     println!("Benvenuto in Brain Training!");
     println!("Vuoi inserire i valori del neurone manualmente? (y/n)");
 
@@ -50,8 +46,10 @@ fn main() {
     let input_weights = read_matrix_file(input_weights_file).expect("Errore durante la lettura del file di input_weights");
     let intra_weights = read_matrix_file(intra_weights_file).expect("Errore durante la lettura del file di intra_weights");
 
-    println!("{:?}", input_weights); 
-    println!("{:?}", intra_weights); 
+    println!("Input weights: \n{:?}", input_weights); 
+    println!("Intra weights: \n{:?}", intra_weights); 
+
+    println!("Analisi rete senza errori..."); 
 
     //Creazione rete neurale
     let layer_sizes = vec![2,2,2];
@@ -82,32 +80,14 @@ fn main() {
         }
         //ciclo sui neuroni per calcolo soglia
         println!("TIME----------------------> {:?}", time);
-        println!("PRE----> {:?}", s);
+        println!("Spike in entrata----> {:?}", s);
         s = network.update_neurons_parallel(time, s, num_layers);
         output.push(s.clone());
-        println!("POST----> {:?}", s);
+        println!("Spike in uscita----> {:?}", s);
     }
 
     println!("OUTPUT: {:?}", output);
     println!("Condizione raggiunta dopo {} iterazioni", time);
-
-    //introduzione degli errori, proviamo a modificare un peso del layer 1 
-    let error_type = ErrorType::StuckAt1; // Sostituisci con il tipo di errore desiderato 
-    let component = Component::Tau;
-    let error_type_2 = ErrorType::StuckAt0;
-    let component_2 = Component::Threshold ;
-    //prova sui pesi
-    // network.get_layer_mut(1).unwrap().modify_weights_layer(&error_type); 
-    // network.get_layer_mut(1).unwrap().print_input_weights(); 
-    // network.get_layer_mut(1).unwrap().print_intra_weights();
-
-    //prova sulle component del neurone
-    println!("test compo neurone");
-    network.get_layer_mut(1).unwrap().get_neuron_mut(0).unwrap().print_neuron_parameters();
-    //network.get_layer_mut(1).unwrap().get_neuron_mut(0).unwrap().modify_parameters_neuron(component, &error_type);
-    //network.get_layer_mut(1).unwrap().get_neuron_mut(0).unwrap().modify_parameters_neuron(component_2, &error_type_2);
-    network.get_layer_mut(1).unwrap().get_neuron_mut(0).unwrap().print_neuron_parameters();
-
 
     error_menu();
 }
@@ -170,6 +150,8 @@ fn read_matrix_file(file_path: &str) -> Result<Vec<Vec<Vec<f64>>>, io::Error> {
 
 
 fn error_menu() {
+    println!("Analisi rete con errori..."); 
+    println!("Aggiungi i parametri di errore"); 
     // Lista di nomi
     let errors = vec!["stuck-at-0", "stuck-at-1", "bit-flip"];
     let positions = vec!["Threshold", "ResetPotential","RestingPotential","MembranePotential","Tau","Weights"];
@@ -246,7 +228,7 @@ fn error_menu() {
         .filter_map(|&nome|  SimulationError::string_to_component(nome))
         .collect();
 
-    let mut simulation = SimulationError::new(components, error_choice, iterazioni);
+    let simulation = SimulationError::new(components, error_choice, iterazioni);
     
     let input_weights_file = "data/input_weights_222.txt";
     let intra_weights_file = "data/intra_weights_222.txt";
@@ -266,8 +248,6 @@ fn error_menu() {
 
     
     simulation.run_simulation_wrapper(layer_sizes,num_layers, input_weights, intra_weights,neuron_params, spikes);
-    simulation.print_info();
-
 }
 
 pub fn generate_spike_file(n: usize) -> &'static str {

@@ -30,7 +30,7 @@ pub fn stuck_at_x(value: &mut f64, index: usize, new_bit: u8) -> Option<usize> {
 
         // Convert byte array back to f64
         *value = f64::from_ne_bytes(value_bytes);
-        ;
+        
         println!("valore aggiornato {:.14} ", value);
         // Return the modified bit index
         Some(index)

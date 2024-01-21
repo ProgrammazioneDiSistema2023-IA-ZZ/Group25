@@ -2,15 +2,8 @@ use rand::Rng;
 
 // neural_layer.rs
 use crate::lif_neuron::Neuron;
-use std::sync::{Mutex, Arc};
 use crate::{simulation_error::ErrorType, errors::modify_weight_based_on_error};  
-/* use rand::{Rng, thread_rng};
 
-fn generate_random_vector(n: usize, min: f64, max: f64) -> Vec<f64> {
-    let mut rng = thread_rng();
-    (0..n).map(|_| rng.gen_range(min..max)).collect()
-}
- */
 #[derive(Clone)]
 pub struct NeuralLayer<N: Neuron> {
     /// List of all neurons in this layer
@@ -23,28 +16,8 @@ pub struct NeuralLayer<N: Neuron> {
 
 impl<N: Neuron> NeuralLayer<N> {
 
-    /* pub fn new(input_weights: usize, next_size: usize, neuron: N) -> NeuralLayer<N> {
+     pub fn new(layer_size: usize, input_weights: Vec<Vec<f64>>, intra_weights: Vec<Vec<f64>>, neuron: N) -> NeuralLayer<N> {
         let neurons = vec![neuron; layer_size];
-        let input_weights: Vec<_> = (0..layer_size)
-        .map(|_| generate_random_vector(layer_size, 0.0, 10.0))
-        .collect();
-        let mut intra_weights: Vec<_> = (0..layer_size)
-        .map(|_| generate_random_vector(layer_size, -3.0, 0.0))
-        .collect();
-        for i in 0..layer_size { 
-            intra_weights[i][i] = 0.0; 
-        } 
-
-        NeuralLayer {
-            neurons,
-            input_weights,
-            intra_weights,
-        }
-    }
-     */
-
-     pub fn new(layer_size: usize, input_weights: Vec<Vec<f64>>, intra_weights: Vec<Vec<f64>>, mut neuron: N) -> NeuralLayer<N> {
-        let mut neurons = vec![neuron; layer_size];
 
         NeuralLayer {
             neurons,

@@ -1,5 +1,5 @@
-use std::collections::HashMap;
 use std::fmt;
+use std::sync::{Mutex, Arc};
 
 use rand::Rng;
 
@@ -7,7 +7,7 @@ use crate::LIFNeuron;
 use crate::neural_network::NeuralNetwork;
 use crate::spike::{Spike, action_spike};
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct SimulationError {
     pub components: Vec<String>,
     pub error_type: ErrorType,
@@ -85,7 +85,7 @@ impl SimulationError {
           // Stampa "output sim x" ogni 10 stampe di row
         if output_sim_counter % 10 == 0 {
             println!("\n\n\n");
-            println!("output sim {}", output_sim_counter / 10 +1 ); 
+            println!("Output simulazione: {}", output_sim_counter / 10 +1 ); 
         }   
             output_sim_counter += 1;
 
@@ -109,82 +109,60 @@ impl SimulationError {
     }
 
     pub fn run_simulation_wrapper(
-        &mut self,
+        &self,
         layer_sizes: Vec<usize>,
         num_layers: usize,
         input_weights: Vec<Vec<Vec<f64>>>,
         intra_weights: Vec<Vec<Vec<f64>>>,
         neuron_params: LIFNeuron,
         spikes: Vec<Vec<Spike>>,
-    ) {
-        // Esegui run_simulation una volta
-        self.run_simulation(
-            layer_sizes.clone(),
-            num_layers,
-            input_weights.clone(),
-            intra_weights.clone(),
-            neuron_params.clone(),
-            spikes.clone(),
-        );
-    
+    ){
         // Esegui run_simulation_error num_occurrences volte
-        for _ in 0..self.occurrences {
+        let buffer = Arc::new(Mutex::new(Vec::<Vec<Vec<f64>>>::new()));
+        let mut vt = Vec::new(); //vettore dei thread
+        for _ in 0..self.occurrences.clone() {
+            let buffer_clone = Arc::clone(&buffer);
+            let cloned_self = self.clone();
+            let layer_sizes_clone = layer_sizes.clone();
+            let num_layers_clone = num_layers.clone();
+            let input_weights_clone = input_weights.clone();
+            let intra_weights_clone = intra_weights.clone();
+            let neuron_params_clone = neuron_params.clone();
+            let spikes_clone = spikes.clone();
             let mut rng = rand::thread_rng();
-            let comp_index = rng.gen_range(0..self.components.len());
-            let selected_component = SimulationError::string_to_component(&self.components[comp_index]);
-            self.run_simulation_with_error(
-                layer_sizes.clone(),
-                num_layers,
-                input_weights.clone(),
-                intra_weights.clone(),
-                neuron_params.clone(),
-                spikes.clone(),
+            let comp_index = rng.gen_range(0..self.components.clone().len());
+            let selected_component = SimulationError::string_to_component(&self.components[comp_index].clone());
+            vt.push(std::thread::spawn(move || {
+            let data = cloned_self.run_simulation_with_error(
+                layer_sizes_clone,
+                num_layers_clone,
+                input_weights_clone,
+                intra_weights_clone,
+                neuron_params_clone,
+                spikes_clone,
                 selected_component,
             );
+            buffer_clone.lock().unwrap().push(data.clone());
+            }));
+        }
+
+        for v in vt{ //aspettiamo le terminazioni dei thread
+            v.join().unwrap();
+        }
+
+        let buffer_lock = buffer.lock().unwrap();
+        for (idx, data) in buffer_lock.iter().enumerate() {
+            println!("Iterazione #{}: ",idx+1);
+            for inner_vec in data.iter() {
+                println!("{:?}", inner_vec);
+            }
         }
     }
     
-
-    pub fn run_simulation(
-        &mut self,
-        layer_sizes: Vec<usize>,
-        num_layers: usize,
-        input_weights: Vec<Vec<Vec<f64>>>,
-        intra_weights: Vec<Vec<Vec<f64>>>,
-        neuron_params: LIFNeuron,
-        spikes: Vec<Vec<Spike>>,
-    ) {
-        // Creazione rete neurale
-        let mut network = NeuralNetwork::new(layer_sizes, input_weights, intra_weights, neuron_params);
-
-        let sorted_spike_array_for_nn = Spike::get_all_spikes(spikes.clone());
-        let max_value = *sorted_spike_array_for_nn.iter().max().unwrap();
-        let mut time = 0;
-
-        while time < max_value {
-            // Incrementa il contatore
-            time += 1;
-            let mut s = vec![0.0, 0.0];
-
-            if sorted_spike_array_for_nn.contains(&time) {
-                s = action_spike(spikes.clone(), time);
-            }
-            
-            // Ciclo sui neuroni per calcolo soglia
-            println!("TIME----------------------> {:?}", time);
-            println!("PRE----> {:?}", s);
-            s = network.update_neurons_parallel(time, s, num_layers);
-            self.output.push(s.clone());
-            println!("POST----> {:?}", s);
-        }
-
-        println!("OUTPUT: {:?}", self.output);
-        println!("Condizione raggiunta dopo {} iterazioni", time);
-    }
 
 
     pub fn run_simulation_with_error(
-        &mut self,
+        &self,
         layer_sizes: Vec<usize>,
         num_layers: usize,
         input_weights: Vec<Vec<Vec<f64>>>,
@@ -192,7 +170,7 @@ impl SimulationError {
         neuron_params: LIFNeuron,
         spikes: Vec<Vec<Spike>>,
         component: Option<Component>,
-    ) {
+    ) -> Vec<Vec<f64>>{
         // Creazione rete neurale
         let mut network = NeuralNetwork::new(layer_sizes, input_weights, intra_weights, neuron_params);
     
@@ -200,30 +178,24 @@ impl SimulationError {
         let max_value = *sorted_spike_array_for_nn.iter().max().unwrap();
         let mut time = 0;
     
+    
+        network.apply_error(component, self.error_type);
+
+        let mut output = Vec::new();
         while time < max_value {
             // Incrementa il contatore
             time += 1;
             let mut s = vec![0.0, 0.0];
     
             if sorted_spike_array_for_nn.contains(&time) {
-                
-
                 s = action_spike(spikes.clone(), time);
             }
             
             // Ciclo sui neuroni per calcolo soglia
-            println!("TIME----------------------> {:?}", time);
-            println!("PRE----> {:?}", s);
-            //CHIAMA ERRORE, USA FUNZIONE APPLY_ERROR SU NEURAL NETWORK
-            network.apply_error(component, self.error_type);
             s = network.update_neurons_parallel(time, s, num_layers);
-            self.output_errors.push(s.clone());
-            println!("POST----> {:?}", s);
+            output.push(s.clone());
         }
-    
-
-        println!("OUTPUT: {:?}", self.output);
-        println!("Condizione raggiunta dopo {} iterazioni", time);
+    output
     }
     
 }
