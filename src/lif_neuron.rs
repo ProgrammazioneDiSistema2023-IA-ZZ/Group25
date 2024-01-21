@@ -67,21 +67,6 @@ impl LIFNeuron {
         }
     }
 
-    pub fn default_random() -> Self {
-        let mut rng = rand::thread_rng();
-
-        LIFNeuron {
-            membrane_potential: RESTING_POTENTIAL + rng.gen_range(-0.5..0.5),
-            reset_potential: RESET_POTENTIAL + rng.gen_range(-0.5..0.5),
-            resting_potential: RESTING_POTENTIAL + rng.gen_range(-0.5..0.5),
-            threshold: THRESHOLD + rng.gen_range(-0.5..0.5),
-            tau: TAU + rng.gen_range(-0.5..0.5),
-            last_spike_time: 0,
-            errors: Vec::new(),
-
-        }
-    }
-
     // Funzione di supporto per leggere l'input utente
     fn read_user_input() -> f64 {
         let mut input = String::new();

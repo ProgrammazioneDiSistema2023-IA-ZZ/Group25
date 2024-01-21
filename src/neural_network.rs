@@ -61,13 +61,6 @@ impl<N: Neuron> NeuralNetwork<N> {
         NeuralNetwork { layers, errors_positions: HashSet::new() }
     }
 
-
-
-    /// Get a reference to a specific layer by index
-    pub fn get_layer(&self, index: usize) -> Option<&NeuralLayer<N>> {
-        self.layers.get(index)
-    }
-
     pub fn get_layer_mut(&mut self, index_layer: usize) -> Option<&mut NeuralLayer<N>> {
         self.layers.get_mut(index_layer)
     }
