@@ -2,6 +2,7 @@
 
 use std::fs::File;
 use std::io::{self, BufRead, Write};
+use std::vec;
 
 mod lif_neuron;
 mod errors;
@@ -89,7 +90,7 @@ fn main() {
     println!("OUTPUT: {:?}", output);
     println!("Condizione raggiunta dopo {} iterazioni", time);
 
-    error_menu();
+    error_menu(output);
 }
 
 fn create_spike(file_path: &str) -> Vec<Vec<Spike>> {
@@ -149,7 +150,7 @@ fn read_matrix_file(file_path: &str) -> Result<Vec<Vec<Vec<f64>>>, io::Error> {
 }
 
 
-fn error_menu() {
+fn error_menu(output: Vec<Vec<f64>>) {
     println!("Analisi rete con errori..."); 
     println!("Aggiungi i parametri di errore"); 
     // Lista di nomi
@@ -241,8 +242,13 @@ fn error_menu() {
     let num_layers: usize = 3;
     let neuron_params = LIFNeuron::default();
     // Leggi le spike da file
-    let spike_file = "data/spike2.txt";
+    let spike_file = "spike.txt";
     let spikes = create_spike(spike_file);
+
+    println!("Iterazione senza errori:");
+            for inner_vec in output.iter() {
+                println!("{:?}", inner_vec);
+            }
 
     let simulation = SimulationError::new(components, error_choice, iterazioni,spikes.len());
 
