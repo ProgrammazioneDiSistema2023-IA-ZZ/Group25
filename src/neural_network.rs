@@ -6,6 +6,7 @@ use crate::ErrorType;
 use crate::lif_neuron::Neuron;
 use crate::neural_layer::NeuralLayer;
 
+use std::collections::HashSet;
 use std::sync::Mutex;
 use std::sync::Arc;
 use std::thread;
@@ -13,7 +14,9 @@ use std::thread;
 #[derive(Clone)]
 pub struct NeuralNetwork<N: Neuron> {
     /// All the sorted layers of the neural network
-    pub layers: Vec<NeuralLayer<N>>
+    pub layers: Vec<NeuralLayer<N>>,
+    pub errors_positions: HashSet<(usize, usize)>,
+
 }
 
 impl<N: Neuron> NeuralNetwork<N> {
@@ -56,7 +59,7 @@ impl<N: Neuron> NeuralNetwork<N> {
         }
     
         // Create and return the NeuralNetwork with the populated layers vector
-        NeuralNetwork { layers }
+        NeuralNetwork { layers, errors_positions: HashSet::new() }
     }
 
 
@@ -172,28 +175,43 @@ impl<N: Neuron> NeuralNetwork<N> {
         return layer_spikes;
     }
 
-    pub fn apply_error(&mut self, components: Vec<Component>, error_type: ErrorType) {
+    pub fn apply_error(&mut self, components: Option<Component>, error_type: ErrorType) {
         let mut rng = rand::thread_rng();
         let num_layers = self.layers.len();
-
-        match components[0] {
-            Component::Weights => {
+    
+        match components {
+            Some(Component::Weights) => {
                 // Scelta casuale di un layer per i pesi
                 let layer_index = rng.gen_range(0..num_layers);
-                //let neuron_index = rng.gen_range(0..self.layers[layer_index].num_neurons());
                 self.get_layer_mut(layer_index).unwrap().modify_weights_layer(&error_type);
-                
             }
-            _ => {
+            Some(_) => {
                 // Scelta casuale di un layer e un neurone per gli altri componenti
                 let layer_index = rng.gen_range(0..num_layers);
                 let neuron_index = rng.gen_range(0..self.layers[layer_index].num_neurons());
-                self.get_neuron_mut(layer_index, neuron_index).unwrap().modify_parameters_neuron(components[0], &error_type);
-                //self.get_layer_mut(layer_index).unwrap().get_neuron_mut(neuron_index).unwrap().modify_parameters_neuron(component, &error_type);
+                if let Some(component) = components {
+                    // Copia degli errori per evitare interferenze
+                    let errors_positions_copy: HashSet<(usize, usize)> = self.errors_positions.clone();
+    
+                    // Applico gli errori ai tempi precedenti
+                    for &(l_index, n_index) in &errors_positions_copy {
+                        self.get_neuron_mut(l_index, n_index).unwrap().apply_old_errors();
+                    }
+    
+                    let position = (layer_index, neuron_index);
+                    self.get_neuron_mut(layer_index, neuron_index)
+                        .unwrap()
+                        .modify_parameters_neuron(component, &error_type);
+                    self.errors_positions.insert(position);
+                }
+            }
+            None => {
+                // Gestione del caso in cui components è None (opzionale)
+                // Potresti voler gestire questo caso in modo specifico se necessario.
             }
         }
     }
-
+    
 
     
 /* 

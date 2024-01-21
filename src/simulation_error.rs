@@ -73,12 +73,27 @@ impl SimulationError {
             println!("  {:?}", row);
         }
     
+        let mut output_sim_counter = 0;
+
         // Stampa il contenuto di self.output_errors
         println!("Output Errors:");
+           
+
         for row in &self.output_errors {
+            
+
+          // Stampa "output sim x" ogni 10 stampe di row
+        if output_sim_counter % 10 == 0 {
+            println!("\n\n\n");
+            println!("output sim {}", output_sim_counter / 10 +1 ); 
+        }   
+            output_sim_counter += 1;
+
             println!("  {:?}", row);
         }
     }
+        
+    
     
 
     pub fn string_to_component(nome: &str) -> Option<Component> {
@@ -191,13 +206,16 @@ impl SimulationError {
             let mut s = vec![0.0, 0.0];
     
             if sorted_spike_array_for_nn.contains(&time) {
-                //CHIAMA ERRORE, USA FUNZIONE APPLY_ERROR SU NEURAL NETWORK
+                
+
                 s = action_spike(spikes.clone(), time);
             }
             
             // Ciclo sui neuroni per calcolo soglia
             println!("TIME----------------------> {:?}", time);
             println!("PRE----> {:?}", s);
+            //CHIAMA ERRORE, USA FUNZIONE APPLY_ERROR SU NEURAL NETWORK
+            network.apply_error(component, self.error_type);
             s = network.update_neurons_parallel(time, s, num_layers);
             self.output_errors.push(s.clone());
             println!("POST----> {:?}", s);

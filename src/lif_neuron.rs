@@ -192,6 +192,7 @@ impl Neuron for LIFNeuron {
 
 pub trait ModifyNeuron {
     fn modify_parameters_neuron(&mut self, component: Component, error_type: &ErrorType);
+    fn apply_old_errors(&mut self);
 }
 
 impl ModifyNeuron for LIFNeuron{
@@ -230,5 +231,52 @@ impl ModifyNeuron for LIFNeuron{
         }}
     }
 
+    fn apply_old_errors(&mut self) {
+        let mut new_threshold = self.threshold;
+        let mut new_reset_potential = self.reset_potential;
+        let mut new_resting_potential = self.resting_potential;
+        let mut new_membrane_potential = self.membrane_potential;
+        let mut new_tau = self.tau;
+    
+        for error in &self.errors {
+            println!("applico gli errori precedenti \n");
+            if error.flag {
+                match error.component {
+                    Some(component) => {
+                        // Chiamata a modify_weight_based_on_error per ogni errore
+                        match component {
+                            Component::Threshold => {
+                                modify_weight_based_on_error(&mut new_threshold, &error.error_type);
+                            }
+                            Component::ResetPotential => {
+                                modify_weight_based_on_error(&mut new_reset_potential, &error.error_type);
+                            }
+                            Component::RestingPotential => {
+                                modify_weight_based_on_error(&mut new_resting_potential, &error.error_type);
+                            }
+                            Component::MembranePotential => {
+                                modify_weight_based_on_error(&mut new_membrane_potential, &error.error_type);
+                            }
+                            Component::Tau => {
+                                modify_weight_based_on_error(&mut new_tau, &error.error_type);
+                            }
+                            _ => {}
+                        }
+                    }
+                    None => {
+                        // Gestisci il caso in cui non c'è un componente
+                        // Puoi decidere come gestire questo caso in base alle tue esigenze
+                    }
+                }
+            }
+        }
+    
+        // Aggiorna i campi della struttura con i nuovi valori
+        self.threshold = new_threshold;
+        self.reset_potential = new_reset_potential;
+        self.resting_potential = new_resting_potential;
+        self.membrane_potential = new_membrane_potential;
+        self.tau = new_tau;
+    }
     
 }

@@ -172,7 +172,7 @@ fn read_matrix_file(file_path: &str) -> Result<Vec<Vec<Vec<f64>>>, io::Error> {
 fn error_menu() {
     // Lista di nomi
     let errors = vec!["stuck-at-0", "stuck-at-1", "bit-flip"];
-    let positions = vec!["Threshold", "ResetPotential","RestingPotential","MembranePotential","Tau"];
+    let positions = vec!["Threshold", "ResetPotential","RestingPotential","MembranePotential","Tau","Weights"];
     
     // Chiedere all'utente il numero di iterazioni
     println!("Inserisci il numero di occorrenze:");
