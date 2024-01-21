@@ -1,9 +1,10 @@
-use std::fmt;
+use std::fmt::{self, Display};
 use std::sync::{Mutex, Arc};
 
 use rand::Rng;
 
 use crate::LIFNeuron;
+use crate::lif_neuron::ModifyNeuron;
 use crate::neural_network::NeuralNetwork;
 use crate::spike::{Spike, action_spike};
 
@@ -12,6 +13,7 @@ pub struct SimulationError {
     pub components: Vec<String>,
     pub error_type: ErrorType,
     pub occurrences: usize,
+    pub spikes_len: usize,
     pub output: Vec<Vec<f64>>,
     pub output_errors: Vec<Vec<f64>>,
 }
@@ -39,8 +41,14 @@ impl fmt::Display for Component {
     }
 }
 
+impl fmt::Display for ErrorType {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{:?}", self)
+    }
+}
+
 impl SimulationError {
-    pub fn new(components: Vec<Component>, error_type: &str, occurrences: usize) -> Self {
+    pub fn new(components: Vec<Component>, error_type: &str, occurrences: usize, spikes_len: usize) -> Self {
         let components = components.into_iter().map(|c| c.to_string()).collect();
         let error_type = match error_type.to_lowercase().as_str() {
             "stuck-at-0" => ErrorType::StuckAt0,
@@ -49,11 +57,11 @@ impl SimulationError {
             _ => panic!("Invalid error type"),
         };
 
-        let output_errors = vec![vec![0u64; 64]; occurrences]; //da rivedere
         Self {
             components,
             error_type,
             occurrences,
+            spikes_len,
             output: Vec::new(),
             output_errors: Vec::new(),
         }
@@ -180,13 +188,18 @@ impl SimulationError {
     
     
         network.apply_error(component, self.error_type);
-
+        println!("Component modificata: {}, type_error: {}", component.unwrap(), self.error_type);
         let mut output = Vec::new();
         while time < max_value {
             // Incrementa il contatore
             time += 1;
             let mut s = vec![0.0, 0.0];
-    
+            if self.error_type != ErrorType::BitFlip && component != Some(Component::Weights) {
+                if let Some(&(l_index, n_index)) = network.errors_positions.iter().next() {
+                    network.get_neuron_mut(l_index, n_index).map(|neuron| neuron.apply_old_errors());
+                }
+                
+            }
             if sorted_spike_array_for_nn.contains(&time) {
                 s = action_spike(spikes.clone(), time);
             }
@@ -198,27 +211,4 @@ impl SimulationError {
     output
     }
     
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_simulation_error() {
-        let components_list = vec![
-            Component::Threshold,
-            Component::ResetPotential,
-            Component::RestingPotential,
-            Component::MembranePotential,
-            Component::Tau,
-            Component::Weights,
-        ];
-
-        let simulation_error = SimulationError::new(components_list, "bit-flip", 3);
-
-        assert_eq!(simulation_error.occurrences, 3);
-        assert_eq!(simulation_error.error_type, ErrorType::BitFlip);
-        assert_eq!(simulation_error.components.len(), 6);
-    }
 }

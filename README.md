@@ -1,11 +1,5 @@
 # Group25
-cose da fare:
--sviluppare la NN
--fare parallelizzazione
--sviluppare il LIF
--sviluppare i comandi per i test sugli errori
--raccogliere i dati sugli errori per studiare la resilienza
--fare presentazione power point
+
 
 All'interno della NN:
 -sviluppare interfaccia neurone di tipo generico ed independete dal modello interno scelto; il neurone riceve impulsi di tipo binario e da in output impulsi di tipo binario
@@ -20,13 +14,6 @@ Come sviluppare gli errori:
 - possibilità di errori: stuck-at-0, stuck-at-1, transient bit-flip
 -indicare il numero di occorrenze di tali guasti ( cioè ripetere i guasti N volte su diversi bit dei diversi componenti da verificare)
 - indicare la normale sequenza di input della rete stessa
-
----- bash ----
-git add nomemodulo.rs
-git commit -m "???"
-git push
----------------
-
 
 
 lif_neuron.rs:

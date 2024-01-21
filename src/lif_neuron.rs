@@ -1,5 +1,7 @@
 // lif_neuron.rs
 use std::io;
+
+
 use rand::Rng;
 
 use crate::{
@@ -180,21 +182,23 @@ impl ModifyNeuron for LIFNeuron{
         // Verifica se l'errore è già presente nella lista
         if !Self::is_error_already_present(&self.errors, error_type, component) {
         let mut index: Option<usize> = None;
+        let index_to_toggle = rand::thread_rng().gen_range(0..64);
+
         match component {
             Component::Threshold => {
-                index = modify_weight_based_on_error(&mut self.threshold, error_type);
+                index = modify_weight_based_on_error(&mut self.threshold, error_type,index_to_toggle);
             }
             Component::ResetPotential => {
-                index = modify_weight_based_on_error(&mut self.reset_potential, error_type);
+                index = modify_weight_based_on_error(&mut self.reset_potential, error_type,index_to_toggle);
             }
             Component::RestingPotential => {
-                index = modify_weight_based_on_error(&mut self.resting_potential, error_type);
+                index = modify_weight_based_on_error(&mut self.resting_potential, error_type,index_to_toggle);
             }
             Component::MembranePotential => {
-                index = modify_weight_based_on_error(&mut self.membrane_potential, error_type);
+                index = modify_weight_based_on_error(&mut self.membrane_potential, error_type,index_to_toggle);
             }
             Component::Tau => {
-                index = modify_weight_based_on_error(&mut self.tau, error_type);
+                index = modify_weight_based_on_error(&mut self.tau, error_type,index_to_toggle);
             }
             _ => {},
         }
@@ -217,33 +221,32 @@ impl ModifyNeuron for LIFNeuron{
         let mut new_tau = self.tau;
     
         for error in &self.errors {
-            println!("applico gli errori precedenti \n");
+           // println!("applico l'errore \n");
             if error.flag {
                 match error.component {
                     Some(component) => {
                         // Chiamata a modify_weight_based_on_error per ogni errore
                         match component {
                             Component::Threshold => {
-                                modify_weight_based_on_error(&mut new_threshold, &error.error_type);
+                                modify_weight_based_on_error(&mut new_threshold, &error.error_type, self.errors[0].index.unwrap() );
                             }
                             Component::ResetPotential => {
-                                modify_weight_based_on_error(&mut new_reset_potential, &error.error_type);
+                                modify_weight_based_on_error(&mut new_reset_potential, &error.error_type,self.errors[0].index.unwrap());
                             }
                             Component::RestingPotential => {
-                                modify_weight_based_on_error(&mut new_resting_potential, &error.error_type);
+                                modify_weight_based_on_error(&mut new_resting_potential, &error.error_type,self.errors[0].index.unwrap());
                             }
                             Component::MembranePotential => {
-                                modify_weight_based_on_error(&mut new_membrane_potential, &error.error_type);
+                                modify_weight_based_on_error(&mut new_membrane_potential, &error.error_type,self.errors[0].index.unwrap());
                             }
                             Component::Tau => {
-                                modify_weight_based_on_error(&mut new_tau, &error.error_type);
+                                modify_weight_based_on_error(&mut new_tau, &error.error_type,self.errors[0].index.unwrap());
                             }
                             _ => {}
                         }
                     }
                     None => {
-                        // Gestisci il caso in cui non c'è un componente
-                        // Puoi decidere come gestire questo caso in base alle tue esigenze
+                        
                     }
                 }
             }

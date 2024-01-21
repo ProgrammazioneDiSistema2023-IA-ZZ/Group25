@@ -21,28 +21,6 @@ pub struct NeuralNetwork<N: Neuron> {
 
 impl<N: Neuron> NeuralNetwork<N> {
 
-    /*pub fn new(layer_sizes: Vec<usize>, neuron: N) -> NeuralNetwork<N> {
-        let mut layers = Vec::with_capacity(layer_sizes.len());
-    
-        // Iterate over layer_sizes to create NeuralLayer instances
-        for &size in &layer_sizes {
-            // Find the next layer size
-            let next_size = layer_sizes.get(layer_sizes.iter().position(|&x| x == size).unwrap_or(0) + 1)
-                .cloned()
-                .unwrap_or(0);
-    
-            // Create a new NeuralLayer with the current size, next size, and neuron
-            let neural_layer = NeuralLayer::new(size, next_size, neuron.clone());
-            
-            // Push the created NeuralLayer into the layers vector
-            layers.push(neural_layer);
-        }
-    
-        // Create and return the NeuralNetwork with the populated layers vector
-        NeuralNetwork { layers }
-    }
-    */
-
     pub fn new(layer_sizes: Vec<usize>, input_weights: Vec<Vec<Vec<f64>>>, intra_weights: Vec<Vec<Vec<f64>>>, neuron: N) -> NeuralNetwork<N> {
         let mut layers = Vec::with_capacity(layer_sizes.len());
     
@@ -175,14 +153,7 @@ impl<N: Neuron> NeuralNetwork<N> {
                 let layer_index = rng.gen_range(0..num_layers);
                 let neuron_index = rng.gen_range(0..self.layers[layer_index].num_neurons());
                 if let Some(component) = components {
-                    // Copia degli errori per evitare interferenze
-                    let errors_positions_copy: HashSet<(usize, usize)> = self.errors_positions.clone();
-    
-                    // Applico gli errori ai tempi precedenti
-                    for &(l_index, n_index) in &errors_positions_copy {
-                        self.get_neuron_mut(l_index, n_index).unwrap().apply_old_errors();
-                    }
-    
+                    
                     let position = (layer_index, neuron_index);
                     self.get_neuron_mut(layer_index, neuron_index)
                         .unwrap()

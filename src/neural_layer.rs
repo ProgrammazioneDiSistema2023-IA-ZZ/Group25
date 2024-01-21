@@ -6,12 +6,12 @@ use crate::{simulation_error::ErrorType, errors::modify_weight_based_on_error};
 
 #[derive(Clone)]
 pub struct NeuralLayer<N: Neuron> {
-    /// List of all neurons in this layer
+    /// Lista di tutti i neuroni in questo strato
     pub(crate) neurons: Vec<N>,
-    /// Matrix of the input weights. For the first layer, this must be a square diagonal matrix.
+    /// Matrice dei pesi in ingresso. Per il primo layer, questa deve essere una matrice diagonale quadrata.
     pub(crate) input_weights: Vec<Vec<f64>>,
-    /// Square matrix of the intra-layer weights
-    pub(crate) intra_weights: Vec<Vec<f64>>
+    /// Matrice quadrata dei pesi intra-layer
+    pub(crate) intra_weights: Vec<Vec<f64>>,
 }
 
 impl<N: Neuron> NeuralLayer<N> {
@@ -100,8 +100,10 @@ impl<N: Neuron> NeuralLayer<N> {
         // Scegli casualmente gli indici della matrice intra_weights 
         let from_index = rng.gen_range(0..self.intra_weights.len()); 
         let to_index = rng.gen_range(0..self.intra_weights[from_index].len()); 
+        let index_to_toggle = rand::thread_rng().gen_range(0..64);
+
         println!{"{} {}",from_index,to_index}; 
-        modify_weight_based_on_error(&mut self.intra_weights[from_index][to_index], error_type); 
+        modify_weight_based_on_error(&mut self.intra_weights[from_index][to_index], error_type,index_to_toggle); 
     } 
     
     
@@ -111,7 +113,9 @@ impl<N: Neuron> NeuralLayer<N> {
         // Scegli casualmente gli indici della matrice intra_weights 
         let from_index = rng.gen_range(0..self.input_weights.len()); 
         let to_index = rng.gen_range(0..self.input_weights[from_index].len()); 
+        let index_to_toggle = rand::thread_rng().gen_range(0..64);
+
         println!{"{} {}",from_index,to_index}; 
-        modify_weight_based_on_error(&mut self.input_weights[from_index][to_index], error_type); 
+        modify_weight_based_on_error(&mut self.input_weights[from_index][to_index], error_type,index_to_toggle); 
     }
 }

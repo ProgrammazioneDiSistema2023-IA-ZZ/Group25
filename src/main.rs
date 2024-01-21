@@ -228,8 +228,6 @@ fn error_menu() {
         .filter_map(|&nome|  SimulationError::string_to_component(nome))
         .collect();
 
-    let simulation = SimulationError::new(components, error_choice, iterazioni);
-    
     let input_weights_file = "data/input_weights_222.txt";
     let intra_weights_file = "data/intra_weights_222.txt";
 
@@ -246,7 +244,8 @@ fn error_menu() {
     let spike_file = "data/spike2.txt";
     let spikes = create_spike(spike_file);
 
-    
+    let simulation = SimulationError::new(components, error_choice, iterazioni,spikes.len());
+
     simulation.run_simulation_wrapper(layer_sizes,num_layers, input_weights, intra_weights,neuron_params, spikes);
 }
 
