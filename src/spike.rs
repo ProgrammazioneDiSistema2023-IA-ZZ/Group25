@@ -24,8 +24,6 @@ impl Spike {
         self.spike_time
     }
 
-    
-    
     pub fn create_spike_vec(neuron_id: usize, layer_id: usize, ts_vec: Vec<u128>) -> Vec<Spike> {
         let mut spike_vec : Vec<Spike> = Vec::with_capacity(ts_vec.len());
         
@@ -40,12 +38,6 @@ impl Spike {
         spike_vec
     }
 
-
-    /// Create an ordered array starting from all the spikes sent to the NN.
-    /// 
-    /// It takes a Matrix where i-th row represents an array of spikes for the i-th entry neuron,
-    /// then a single Vec is created. Eventually the array is sorted.
-    
     pub fn get_all_spikes(spikes: Vec<Vec<Spike>>) -> Vec<u128> {
         let mut res: Vec<u128> = Vec::new();
 
@@ -58,7 +50,6 @@ impl Spike {
     
         res
     }
-
 }
 
 
@@ -70,7 +61,6 @@ pub fn contains_time<'a>(spike_vec: &'a [Spike], time: u128) -> Option<&'a Spike
     }
     None
 }
-
 
 pub fn action_spike(spikes: Vec<Vec<Spike>>, time: u128) -> Vec<f64>{
 

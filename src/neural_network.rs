@@ -130,8 +130,6 @@ impl<N: Neuron> NeuralNetwork<N> {
                         .adjust_weight(*internal_spike_buffer.lock().unwrap().get(neuron_idx).unwrap());
                 }
                 drop(internal_spike_buffer);
-    
-                //println!("values layer {}: {:?}", layer_idx, layer_spikes);
             }
         
     

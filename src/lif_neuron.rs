@@ -245,9 +245,7 @@ impl ModifyNeuron for LIFNeuron{
                             _ => {}
                         }
                     }
-                    None => {
-                        
-                    }
+                    None => {}
                 }
             }
         }
