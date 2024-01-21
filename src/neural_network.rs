@@ -21,28 +21,6 @@ pub struct NeuralNetwork<N: Neuron> {
 
 impl<N: Neuron> NeuralNetwork<N> {
 
-    /*pub fn new(layer_sizes: Vec<usize>, neuron: N) -> NeuralNetwork<N> {
-        let mut layers = Vec::with_capacity(layer_sizes.len());
-    
-        // Iterate over layer_sizes to create NeuralLayer instances
-        for &size in &layer_sizes {
-            // Find the next layer size
-            let next_size = layer_sizes.get(layer_sizes.iter().position(|&x| x == size).unwrap_or(0) + 1)
-                .cloned()
-                .unwrap_or(0);
-    
-            // Create a new NeuralLayer with the current size, next size, and neuron
-            let neural_layer = NeuralLayer::new(size, next_size, neuron.clone());
-            
-            // Push the created NeuralLayer into the layers vector
-            layers.push(neural_layer);
-        }
-    
-        // Create and return the NeuralNetwork with the populated layers vector
-        NeuralNetwork { layers }
-    }
-    */
-
     pub fn new(layer_sizes: Vec<usize>, input_weights: Vec<Vec<Vec<f64>>>, intra_weights: Vec<Vec<Vec<f64>>>, neuron: N) -> NeuralNetwork<N> {
         let mut layers = Vec::with_capacity(layer_sizes.len());
     
@@ -152,8 +130,6 @@ impl<N: Neuron> NeuralNetwork<N> {
                         .adjust_weight(*internal_spike_buffer.lock().unwrap().get(neuron_idx).unwrap());
                 }
                 drop(internal_spike_buffer);
-    
-                //println!("values layer {}: {:?}", layer_idx, layer_spikes);
             }
         
     

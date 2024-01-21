@@ -241,10 +241,7 @@ impl ModifyNeuron for LIFNeuron{
                             _ => {}
                         }
                     }
-                    None => {
-                        // Gestisci il caso in cui non c'è un componente
-                        // Puoi decidere come gestire questo caso in base alle tue esigenze
-                    }
+                    None => {}
                 }
             }
         }
